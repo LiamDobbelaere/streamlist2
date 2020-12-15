@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/normalize.css"/>
+  <link rel="stylesheet" type="text/css" href="css/screen.css"/>
+  <title>Streamlist</title>
+</head>
+<body>
+  <div id="app">
+    <input v-model="newEntryTitle" v-on:keyup.enter="createEntry" placeholder="Enter title.." />
+    <div v-for="entry in entries" :key="entry.id" v-bind:class="{ 'pending': entry.requestId }">
+      {{ entry.title }} {{ entry.type }} <button v-on:click="updateEntry(entry, { type: 'movie'})">Update test</button> <button v-on:click="deleteEntry(entry)">Delete</button>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script type="text/javascript" src="socket.io/socket.io.min.js"></script>
+  <script> 
+    const socket = io();
+    const SocketEvent = {
+      CREATE_ENTRY: "create entry",
+      CREATED_ENTRY: "created entry",
+      UPDATE_ENTRY: "update entry",
+      UPDATED_ENTRY: "updated entry",
+      DELETE_ENTRY: "delete entry",
+      DELETED_ENTRY: "deleted entry",
+      SEND_ENTRIES: "send entries"
+    };
+
+    let requestId = 0;
+    function generateRequestId() {
+      return ++requestId;
+    }
+    
+    const app = new Vue({
+      el: "#app",
+      data: {
+        newEntryTitle: "",
+        entries: []
+      },
+      mounted: function() {
+        this.$nextTick(function () {
+          socket.on(SocketEvent.SEND_ENTRIES, (entries) => this.entries = entries);
+          socket.on(SocketEvent.CREATED_ENTRY, (newEntry, requestId) => {
+            if (requestId) {
+              this.entries = this.entries.filter(entry => entry.requestId !== requestId);
+            }
+            
+            this.entries = [...this.entries, newEntry];
+          });
+          socket.on(SocketEvent.UPDATED_ENTRY, (updatedEntry, requestId) => {           
+            this.entries = this.entries.map(entry => entry.id === updatedEntry.id ? updatedEntry : entry);
+          });
+          socket.on(SocketEvent.DELETED_ENTRY, (id) => {
+            this.entries = this.entries.filter(entry => entry.id !== id);
+          });
+        });
+      },
+      methods: {
+        createEntry: function(e) {
+          const requestId = generateRequestId();
+          this.entries = [...this.entries, { title: this.newEntryTitle, requestId }];
+
+          socket.emit(SocketEvent.CREATE_ENTRY, {
+            title: this.newEntryTitle
+          }, requestId);
+
+          this.newEntryTitle = "";
+        },
+        updateEntry: function (entryToUpdate, patch) {
+          const requestId = generateRequestId();
+          this.entries = this.entries.map(entry => entry === entryToUpdate ? {
+            ...entry,
+            ...patch,
+            requestId
+          } : entry);
+
+          socket.emit(SocketEvent.UPDATE_ENTRY, {
+            ...entryToUpdate,
+            ...patch
+          }, requestId);
+        },
+        deleteEntry: function(entryToDelete) {
+          const requestId = generateRequestId();
+          this.entries = this.entries.map(entry => entry === entryToDelete ? {
+            ...entryToDelete,
+            requestId
+          } : entry);
+
+          socket.emit(SocketEvent.DELETE_ENTRY, entryToDelete.id);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
