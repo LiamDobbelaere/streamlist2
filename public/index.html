@@ -9,12 +9,28 @@
 </head>
 <body>
   <div id="app">
+    <h1>Streamlist</h1>
     <input v-model="newEntryTitle" v-on:keyup.enter="createEntry" placeholder="Enter title.." />
-    <div v-for="entry in entries" :key="entry.id" v-bind:class="{ 'pending': entry.requestId }">
-      {{ entry.title }} {{ entry.type }} <button v-on:click="updateEntry(entry, { type: 'movie'})">Update test</button> <button v-on:click="deleteEntry(entry)">Delete</button>
+    <div class="entries">
+      <div class="entry" v-for="entry in entries" :key="entry.id" v-bind:class="entryClasses(entry)">
+        <div class="entry-icon">
+        </div>
+        <div class="entry-title">
+          {{ entry.title }}
+        </div>
+        <div class="entry-actions">
+          <button v-tooltip="'Mark as game'" class="button-small button-small-game" v-if="entry.type !== 'game'" v-on:click="updateEntry(entry, { type: 'game' })"></button>
+          <button v-tooltip="'Mark as movie'" class="button-small button-small-movie" v-if="entry.type !== 'movie'" v-on:click="updateEntry(entry, { type: 'movie' })"></button>
+          <button v-tooltip="'Mark as series'" class="button-small button-small-series" v-if="entry.type !== 'series'" v-on:click="updateEntry(entry, { type: 'series' })"></button>
+          <div class="divider" v-if="entry.type === 'game'"></div>
+          <button v-tooltip="'Game is coop'" class="button-small button-small-coop" v-if="entry.type === 'game'" v-on:click="updateEntry(entry, { isCoop: !entry.isCoop })"></button>
+          <button v-tooltip="'Game is versus'" class="button-small button-small-versus" v-if="entry.type === 'game'" v-on:click="updateEntry(entry, { isVersus: !entry.isVersus })"></button>
+        </div>
+      </div>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script src="https://unpkg.com/v-tooltip"></script>
   <script type="text/javascript" src="socket.io/socket.io.min.js"></script>
   <script> 
     const socket = io();
@@ -32,7 +48,13 @@
     function generateRequestId() {
       return ++requestId;
     }
-    
+
+    function sortEntries(entries) {
+      return entries.sort((a, b) => {
+        return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
+      });
+    }
+
     const app = new Vue({
       el: "#app",
       data: {
@@ -41,19 +63,19 @@
       },
       mounted: function() {
         this.$nextTick(function () {
-          socket.on(SocketEvent.SEND_ENTRIES, (entries) => this.entries = entries);
+          socket.on(SocketEvent.SEND_ENTRIES, (entries) => this.entries = sortEntries(entries));
           socket.on(SocketEvent.CREATED_ENTRY, (newEntry, requestId) => {
             if (requestId) {
               this.entries = this.entries.filter(entry => entry.requestId !== requestId);
             }
             
-            this.entries = [...this.entries, newEntry];
+            this.entries = sortEntries([...this.entries, newEntry]);
           });
           socket.on(SocketEvent.UPDATED_ENTRY, (updatedEntry, requestId) => {           
-            this.entries = this.entries.map(entry => entry.id === updatedEntry.id ? updatedEntry : entry);
+            this.entries = sortEntries(this.entries.map(entry => entry.id === updatedEntry.id ? updatedEntry : entry));
           });
           socket.on(SocketEvent.DELETED_ENTRY, (id) => {
-            this.entries = this.entries.filter(entry => entry.id !== id);
+            this.entries = sortEntries(this.entries.filter(entry => entry.id !== id));
           });
         });
       },
@@ -89,6 +111,12 @@
           } : entry);
 
           socket.emit(SocketEvent.DELETE_ENTRY, entryToDelete.id);
+        },
+        entryClasses: function (entry) {
+          return {
+            'pending': entry.requestId,
+            ['entry-type-' + entry.type]: true
+          }
         }
       }
     });
