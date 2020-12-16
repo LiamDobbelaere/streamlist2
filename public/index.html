@@ -15,6 +15,10 @@
       <div class="entry" v-for="entry in entries" :key="entry.id" v-bind:class="entryClasses(entry)">
         <div class="entry-icon">
         </div>
+        <div class="entry-flag-icons">
+          <div v-if="entry.isCoop" class="entry-flag entry-flag-coop"></div>
+          <div v-if="entry.isVersus" class="entry-flag entry-flag-versus"></div>
+        </div>
         <div class="entry-title">
           {{ entry.title }}
         </div>
@@ -23,8 +27,10 @@
           <button v-tooltip="'Mark as movie'" class="button-small button-small-movie" v-if="entry.type !== 'movie'" v-on:click="updateEntry(entry, { type: 'movie' })"></button>
           <button v-tooltip="'Mark as series'" class="button-small button-small-series" v-if="entry.type !== 'series'" v-on:click="updateEntry(entry, { type: 'series' })"></button>
           <div class="divider" v-if="entry.type === 'game'"></div>
-          <button v-tooltip="'Game is coop'" class="button-small button-small-coop" v-if="entry.type === 'game'" v-on:click="updateEntry(entry, { isCoop: !entry.isCoop })"></button>
-          <button v-tooltip="'Game is versus'" class="button-small button-small-versus" v-if="entry.type === 'game'" v-on:click="updateEntry(entry, { isVersus: !entry.isVersus })"></button>
+          <button v-tooltip="'Game is coop'" class="button-small button-small-coop" v-bind:class="{ 'selected': entry.isCoop }" v-if="entry.type === 'game'" v-on:click="updateEntry(entry, { isCoop: !entry.isCoop })"></button>
+          <button v-tooltip="'Game is versus'" class="button-small button-small-versus" v-bind:class="{ 'selected': entry.isVersus }" v-if="entry.type === 'game'" v-on:click="updateEntry(entry, { isVersus: !entry.isVersus })"></button>
+          <div class="divider"></div>      
+          <button v-tooltip="'Delete'" class="button-small button-small-delete" v-on:click="deleteEntry(entry)"></button>
         </div>
       </div>
     </div>
@@ -50,6 +56,7 @@
     }
 
     function sortEntries(entries) {
+      console.log('sortentries');
       return entries.sort((a, b) => {
         return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
       });
@@ -82,8 +89,8 @@
       methods: {
         createEntry: function(e) {
           const requestId = generateRequestId();
-          this.entries = [...this.entries, { title: this.newEntryTitle, requestId }];
-
+          this.entries = sortEntries([...this.entries, { title: this.newEntryTitle, requestId, type: "game" }]);
+          
           socket.emit(SocketEvent.CREATE_ENTRY, {
             title: this.newEntryTitle
           }, requestId);
@@ -92,11 +99,11 @@
         },
         updateEntry: function (entryToUpdate, patch) {
           const requestId = generateRequestId();
-          this.entries = this.entries.map(entry => entry === entryToUpdate ? {
+          this.entries = sortEntries(this.entries.map(entry => entry === entryToUpdate ? {
             ...entry,
             ...patch,
             requestId
-          } : entry);
+          } : entry));
 
           socket.emit(SocketEvent.UPDATE_ENTRY, {
             ...entryToUpdate,
@@ -105,10 +112,10 @@
         },
         deleteEntry: function(entryToDelete) {
           const requestId = generateRequestId();
-          this.entries = this.entries.map(entry => entry === entryToDelete ? {
+          this.entries = sortEntries(this.entries.map(entry => entry === entryToDelete ? {
             ...entryToDelete,
             requestId
-          } : entry);
+          } : entry));
 
           socket.emit(SocketEvent.DELETE_ENTRY, entryToDelete.id);
         },

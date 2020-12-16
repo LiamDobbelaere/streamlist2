@@ -10,6 +10,7 @@ body {
   --app-accent: #91ff00;
   --app-accent-series: #0091ff;
   --app-accent-movie: #ff9100;
+  --app-danger: #aa0000aa;
   background-color: var(--app-bg);
   color: var(--app-text);
   padding: 24px;
@@ -63,6 +64,7 @@ input:focus {
   margin-bottom: 1px;
   padding: 8px;
   align-items: center;
+  justify-content: space-around;
 }
 
 .entry:first-child {
@@ -71,6 +73,10 @@ input:focus {
 
 .entry:last-child {
   border-radius: 0 0 8px 8px;
+}
+
+.entry:first-child:last-child {
+  border-radius: 8px;
 }
 
 .entry-title {
@@ -84,6 +90,10 @@ button {
   cursor: pointer;
 }
 
+button:focus {
+  outline: none;
+}
+
 .button-small, .button-small-inline {
   width: 24px;
   height: 24px;
@@ -91,6 +101,10 @@ button {
   background-repeat: no-repeat;
   background-position: center;
   margin-right: 4px;
+}
+
+.button-small.selected {
+  border-color: var(--app-accent);
 }
 
 .button-small-game {
@@ -105,12 +119,17 @@ button {
   background-image: url('../media/series.png');
 }
 
-.button-small-coop {
+.button-small-coop, .entry-flag-coop {
   background-image: url('../media/coop.png');
 }
 
-.button-small-versus {
+.button-small-versus, .entry-flag-versus {
   background-image: url('../media/versus.png');
+}
+
+.button-small-delete {
+  background-image: url('../media/delete.png');
+  background-color: var(--app-danger);
 }
 
 .entry.entry-type-movie {
@@ -129,6 +148,14 @@ button {
   background-image: url('../media/series.png');
 }
 
+.entry-flag {
+  width: 16px;
+  height: 16px;
+  background-size: 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .entry-actions {
   display: flex;
   flex-direction: row;
@@ -140,6 +167,12 @@ button {
   animation: slide-from-right 0.4s ease;
 }
 
+.entry-flag-icons {
+  display: flex;
+  flex-direction: row;
+  margin-right: 4px;
+}
+
 .entry-icon {
   width: 16px;
   height: 16px;
@@ -147,7 +180,10 @@ button {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  margin-right: 8px;
+}
+
+.entry-icon, .entry-flag {
+  margin-right: 4px;
 }
 
 .entry:not(.pending) {
