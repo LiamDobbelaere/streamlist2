@@ -9,7 +9,7 @@
 </head>
 <body>
   <div id="app">
-    <h1>Streamlist</h1>
+    <h1>Streamlist <a class="export-link" href="/export">Download .txt</a></h1>
     <input v-model="newEntryTitle" v-on:keyup.enter="createEntry" placeholder="Enter title.." />
     <div class="entries">
       <div class="entry" v-for="entry in entries" :key="entry.id" v-bind:class="entryClasses(entry)">

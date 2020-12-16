@@ -56,7 +56,6 @@ input.inline-input {
 
 input:focus {
   border-color: var(--app-accent);
-  max-width: 200px;
 }
 
 input.inline-input:focus {
@@ -255,6 +254,16 @@ button:focus {
       opacity: 1;
       transform: translateY(0);
   }
+}
+
+a {
+  text-decoration: underline;
+  color: var(--app-accent-series)
+}
+
+.export-link {
+  font-size: 16px;
+  font-weight: normal;
 }
 
 /* v-tooltip */ 

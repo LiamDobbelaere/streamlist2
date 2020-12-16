@@ -18,6 +18,40 @@ const SocketEvent = {
 };
 
 app.use('/', express.static(path.join(__dirname, 'public')));
+app.get('/export', async (req, res) => {
+  const streamItems = await db.StreamList.findAll();
+  const itemsByType = streamItems.reduce((acc, streamItem) => {
+    acc[streamItem.type] = acc[streamItem.type] || [];
+
+    const isCoop = streamItem.isCoop ? "(coop) " : "";
+    const isVersus = streamItem.isVersus ? "(versus) " : "";
+    const tags = (isCoop + isVersus).trim();
+    acc[streamItem.type].push(`${streamItem.title} ${tags}`);
+
+    return acc;
+  }, {});
+
+  let finalText = "";
+  let first = true;
+  Object.keys(itemsByType).forEach(key => {
+    if (!first) {
+      finalText += "\r\n";
+    }
+    finalText += key.toUpperCase() + "\r\n";
+
+    itemsByType[key].forEach(item => {
+      finalText += item + "\r\n";
+    });
+
+    first = false;
+  });
+
+  res.writeHead(200, {
+    'Content-Type': 'application/force-download',
+    'Content-disposition':'attachment; filename=gamelist.txt'
+  });
+  res.end(finalText);
+});
 
 io.on('connection', async (socket) => {
   const allEntries = await db.StreamList.findAll();
