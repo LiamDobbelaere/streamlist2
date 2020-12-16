@@ -59,7 +59,6 @@
     }
 
     function sortEntries(entries) {
-      console.log('sortentries');
       return entries.sort((a, b) => {
         return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
       });
@@ -88,7 +87,6 @@
               ...updatedEntry,
               updated: !requestId && +new Date()
             } : entry));
-            console.log(!requestId && +new Date());
 
             if (!requestId) {
               setTimeout(() => {
