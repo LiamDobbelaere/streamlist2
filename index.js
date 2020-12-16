@@ -24,6 +24,10 @@ io.on('connection', async (socket) => {
   socket.emit(SocketEvent.SEND_ENTRIES, allEntries);
 
   socket.on(SocketEvent.CREATE_ENTRY, async (entry, requestId) => {
+    if (!entry.title.trim()) {
+      return;
+    }
+
     const newEntry = (await db.StreamList.create({
       title: entry.title
     })).get({ plain: true });
@@ -50,8 +54,8 @@ io.on('connection', async (socket) => {
     await db.StreamList.update({
       title: entry.title,
       type: entry.type,
-      isCoop: entry.isCoop,
-      isVersus: entry.isVersus
+      isCoop: entry.type === "game" && entry.isCoop,
+      isVersus: entry.type === "game" && entry.isVersus
     }, {
       where: {
         id: entry.id
@@ -65,7 +69,7 @@ io.on('connection', async (socket) => {
     }, { plain: true });
 
     socket.broadcast.emit(SocketEvent.UPDATED_ENTRY, updatedEntry);
-    io.emit(SocketEvent.UPDATED_ENTRY, updatedEntry, requestId);
+    socket.emit(SocketEvent.UPDATED_ENTRY, updatedEntry, requestId);
   });
 
   socket.on('disconnect', () => {

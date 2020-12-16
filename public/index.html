@@ -16,11 +16,14 @@
         <div class="entry-icon">
         </div>
         <div class="entry-flag-icons">
-          <div v-if="entry.isCoop" class="entry-flag entry-flag-coop"></div>
-          <div v-if="entry.isVersus" class="entry-flag entry-flag-versus"></div>
+          <div v-bind:class="{ 'invisible': !entry.isCoop }" class="entry-flag entry-flag-coop"></div>
+          <div v-bind:class="{ 'invisible': !entry.isVersus }" class="entry-flag entry-flag-versus"></div>
         </div>
-        <div class="entry-title">
+        <div v-if="entry.id !== editingEntryId" v-on:click="editingEntryId = entry.id; renameEntryTitle = entry.title" class="entry-title">
           {{ entry.title }}
+        </div>
+        <div v-if="entry.id === editingEntryId">
+          <input autofocus class="inline-input" v-model="renameEntryTitle" v-on:keyup.enter="updateEntry(entry, { title: renameEntryTitle })" placeholder="Enter title.." />
         </div>
         <div class="entry-actions">
           <button v-tooltip="'Mark as game'" class="button-small button-small-game" v-if="entry.type !== 'game'" v-on:click="updateEntry(entry, { type: 'game' })"></button>
@@ -66,7 +69,9 @@
       el: "#app",
       data: {
         newEntryTitle: "",
-        entries: []
+        renameEntryTitle: "",
+        entries: [],
+        editingEntryId: null,
       },
       mounted: function() {
         this.$nextTick(function () {
@@ -79,7 +84,23 @@
             this.entries = sortEntries([...this.entries, newEntry]);
           });
           socket.on(SocketEvent.UPDATED_ENTRY, (updatedEntry, requestId) => {           
-            this.entries = sortEntries(this.entries.map(entry => entry.id === updatedEntry.id ? updatedEntry : entry));
+            this.entries = sortEntries(this.entries.map(entry => entry.id === updatedEntry.id ? {
+              ...updatedEntry,
+              updated: !requestId && +new Date()
+            } : entry));
+            console.log(!requestId && +new Date());
+
+            if (!requestId) {
+              setTimeout(() => {
+                const foundEntry = this.entries.find((val) => val.id === updatedEntry.id);
+                if (foundEntry && (+new Date() - foundEntry.updated) >= 2000) {
+                  this.entries = this.entries.map(entry => entry.id === updatedEntry.id ? {
+                    ...updatedEntry,
+                    updated: undefined
+                  } : entry);
+                }
+              }, 2000);
+            }
           });
           socket.on(SocketEvent.DELETED_ENTRY, (id) => {
             this.entries = sortEntries(this.entries.filter(entry => entry.id !== id));
@@ -88,6 +109,10 @@
       },
       methods: {
         createEntry: function(e) {
+          if (!this.newEntryTitle.trim()) {
+            return;
+          }
+
           const requestId = generateRequestId();
           this.entries = sortEntries([...this.entries, { title: this.newEntryTitle, requestId, type: "game" }]);
           
@@ -109,6 +134,8 @@
             ...entryToUpdate,
             ...patch
           }, requestId);
+
+          this.editingEntryId = null;
         },
         deleteEntry: function(entryToDelete) {
           const requestId = generateRequestId();
@@ -122,6 +149,7 @@
         entryClasses: function (entry) {
           return {
             'pending': entry.requestId,
+            'updated': !!entry.updated,
             ['entry-type-' + entry.type]: true
           }
         }
