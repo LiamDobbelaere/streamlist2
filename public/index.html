@@ -9,7 +9,7 @@
 </head>
 <body>
   <div id="app">
-    <h1>Streamlist <a class="export-link" href="/export">Download .txt</a></h1>
+    <h1>Streamlist <a class="export-link" href="export">Download .txt</a></h1>
     <input v-model="newEntryTitle" v-on:keyup.enter="createEntry" placeholder="Enter title.." />
     <div class="entries">
       <div class="entry" v-for="entry in entries" :key="entry.id" v-bind:class="entryClasses(entry)">
@@ -42,7 +42,9 @@
   <script src="https://unpkg.com/v-tooltip"></script>
   <script type="text/javascript" src="socket.io/socket.io.min.js"></script>
   <script> 
-    const socket = io();
+    const socket = io(window.location.host, {
+      path: window.location.pathname + 'socket.io'
+    });
     const SocketEvent = {
       CREATE_ENTRY: "create entry",
       CREATED_ENTRY: "created entry",
