@@ -14,7 +14,8 @@ const SocketEvent = {
   UPDATED_ENTRY: "updated entry",
   DELETE_ENTRY: "delete entry",
   DELETED_ENTRY: "deleted entry",
-  SEND_ENTRIES: "send entries"
+  SEND_ENTRIES: "send entries",
+  CONNECTION_COUNT: "connection count"
 };
 
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -53,7 +54,11 @@ app.get('/export', async (req, res) => {
   res.end(finalText);
 });
 
+let connectionCount = 0;
 io.on('connection', async (socket) => {
+  connectionCount++;
+  io.emit(SocketEvent.CONNECTION_COUNT, connectionCount);
+
   const allEntries = await db.StreamList.findAll();
   socket.emit(SocketEvent.SEND_ENTRIES, allEntries);
 
@@ -107,7 +112,8 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
-
+    connectionCount--;
+    io.emit(SocketEvent.CONNECTION_COUNT, connectionCount);
   });
 });
 

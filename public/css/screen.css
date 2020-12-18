@@ -266,6 +266,14 @@ a {
   font-weight: normal;
 }
 
+.user-count {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: normal;
+  margin-bottom: 24px;
+  text-align: right;
+}
+
 /* v-tooltip */ 
 .tooltip {
   display: block !important;

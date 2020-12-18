@@ -10,6 +10,7 @@
 <body>
   <div id="app">
     <h1>Streamlist <a class="export-link" href="export">Download .txt</a></h1>
+    <span class="user-count">{{ usersHere }}</span>
     <input v-model="newEntryTitle" v-on:keyup.enter="createEntry" placeholder="Enter title.." />
     <div class="entries">
       <div class="entry" v-for="entry in entries" :key="entry.id" v-bind:class="entryClasses(entry)">
@@ -52,7 +53,8 @@
       UPDATED_ENTRY: "updated entry",
       DELETE_ENTRY: "delete entry",
       DELETED_ENTRY: "deleted entry",
-      SEND_ENTRIES: "send entries"
+      SEND_ENTRIES: "send entries",
+      CONNECTION_COUNT: "connection count"
     };
 
     let requestId = 0;
@@ -69,10 +71,24 @@
     const app = new Vue({
       el: "#app",
       data: {
+        connectionCount: "?",
         newEntryTitle: "",
         renameEntryTitle: "",
         entries: [],
         editingEntryId: null,
+      },
+      computed: {
+        usersHere: function () {
+          const realAmount = this.connectionCount - 1;
+          switch(realAmount) {
+            case 0:
+              return "It's just you here right now"
+            case 1:
+              return "There's one other person here right now"
+            default:
+              return `There's ${realAmount} other people here right now`
+          }
+        }
       },
       mounted: function() {
         this.$nextTick(function () {
@@ -104,6 +120,9 @@
           });
           socket.on(SocketEvent.DELETED_ENTRY, (id) => {
             this.entries = sortEntries(this.entries.filter(entry => entry.id !== id));
+          });
+          socket.on(SocketEvent.CONNECTION_COUNT, (count) => {
+            this.connectionCount = count;
           });
         });
       },
