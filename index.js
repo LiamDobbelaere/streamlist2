@@ -1,10 +1,16 @@
 require('dotenv').config();
-const { PORT } = process.env;
+const { 
+  PORT, 
+  INTEROP_OTH_IP,
+  INTEROP_OTH_PORT
+} = process.env;
 
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const cookieParser = require('socket.io-cookie-parser');
+const fetch = require('node-fetch');
 const db = require('./db');
 const path = require('path');
 const SocketEvent = {
@@ -15,7 +21,8 @@ const SocketEvent = {
   DELETE_ENTRY: "delete entry",
   DELETED_ENTRY: "deleted entry",
   SEND_ENTRIES: "send entries",
-  CONNECTION_COUNT: "connection count"
+  CONNECTION_COUNT: "connection count",
+  PERMISSIONS_RECEIVED: "permissions received"
 };
 
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -54,8 +61,27 @@ app.get('/export', async (req, res) => {
   res.end(finalText);
 });
 
+io.use(cookieParser());
+
 let connectionCount = 0;
 io.on('connection', async (socket) => {
+  socket.permissions = [];
+
+  const sid = socket.request.cookies.sid;
+  if (sid) {
+    fetch(`http://${INTEROP_OTH_IP}:${INTEROP_OTH_PORT}/permissions/${sid}`).then((res) => {
+      return res.json();
+    }).then(permissions => {
+      socket.permissions = permissions;
+  
+      socket.emit(SocketEvent.PERMISSIONS_RECEIVED, socket.permissions.filter(i => i === "MODIFY_STREAMLIST"));
+    });
+  }
+
+  function hasModifyPermission() {
+    return socket.permissions.includes("MODIFY_STREAMLIST");
+  }
+
   connectionCount++;
   io.emit(SocketEvent.CONNECTION_COUNT, connectionCount);
 
@@ -63,6 +89,10 @@ io.on('connection', async (socket) => {
   socket.emit(SocketEvent.SEND_ENTRIES, allEntries);
 
   socket.on(SocketEvent.CREATE_ENTRY, async (entry, requestId) => {
+    if (!hasModifyPermission()) {
+      return;
+    }
+
     if (!entry.title.trim()) {
       return;
     }
@@ -76,6 +106,10 @@ io.on('connection', async (socket) => {
   });
 
   socket.on(SocketEvent.DELETE_ENTRY, async (id) => {
+    if (!hasModifyPermission()) {
+      return;
+    }
+
     if (!id) {
       return;
     }
@@ -90,6 +124,10 @@ io.on('connection', async (socket) => {
   });
 
   socket.on(SocketEvent.UPDATE_ENTRY, async (entry, requestId) => {
+    if (!hasModifyPermission()) {
+      return;
+    }
+
     await db.StreamList.update({
       title: entry.title,
       type: entry.type,

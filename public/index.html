@@ -20,13 +20,16 @@
           <div v-bind:class="{ 'invisible': !entry.isCoop }" class="entry-flag entry-flag-coop"></div>
           <div v-bind:class="{ 'invisible': !entry.isVersus }" class="entry-flag entry-flag-versus"></div>
         </div>
-        <div v-if="entry.id !== editingEntryId" v-on:click="editingEntryId = entry.id; renameEntryTitle = entry.title" class="entry-title">
+        <div v-if="canModify && entry.id !== editingEntryId" v-on:click="editingEntryId = entry.id; renameEntryTitle = entry.title" class="entry-title">
+          {{ entry.title }}
+        </div>
+        <div v-if="!canModify" class="entry-title">
           {{ entry.title }}
         </div>
         <div v-if="entry.id === editingEntryId">
           <input autofocus class="inline-input" v-model="renameEntryTitle" v-on:keyup.enter="updateEntry(entry, { title: renameEntryTitle })" placeholder="Enter title.." />
         </div>
-        <div class="entry-actions">
+        <div v-if="canModify" class="entry-actions">
           <button v-tooltip="'Mark as game'" class="button-small button-small-game" v-if="entry.type !== 'game'" v-on:click="updateEntry(entry, { type: 'game' })"></button>
           <button v-tooltip="'Mark as movie'" class="button-small button-small-movie" v-if="entry.type !== 'movie'" v-on:click="updateEntry(entry, { type: 'movie' })"></button>
           <button v-tooltip="'Mark as series'" class="button-small button-small-series" v-if="entry.type !== 'series'" v-on:click="updateEntry(entry, { type: 'series' })"></button>
@@ -54,7 +57,8 @@
       DELETE_ENTRY: "delete entry",
       DELETED_ENTRY: "deleted entry",
       SEND_ENTRIES: "send entries",
-      CONNECTION_COUNT: "connection count"
+      CONNECTION_COUNT: "connection count",
+      PERMISSIONS_RECEIVED: "permissions received"
     };
 
     let requestId = 0;
@@ -71,6 +75,7 @@
     const app = new Vue({
       el: "#app",
       data: {
+        canModify: false,
         connectionCount: "?",
         newEntryTitle: "",
         renameEntryTitle: "",
@@ -92,6 +97,9 @@
       },
       mounted: function() {
         this.$nextTick(function () {
+          socket.on(SocketEvent.PERMISSIONS_RECEIVED, (permissions) => {
+            this.canModify = permissions.includes("MODIFY_STREAMLIST");
+          });
           socket.on(SocketEvent.SEND_ENTRIES, (entries) => this.entries = sortEntries(entries));
           socket.on(SocketEvent.CREATED_ENTRY, (newEntry, requestId) => {
             if (requestId) {

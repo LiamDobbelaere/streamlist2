@@ -11,8 +11,10 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
     "sequelize": "^6.3.5",
     "socket.io": "^3.0.4",
+    "socket.io-cookie-parser": "^1.0.0",
     "sqlite3": "^5.0.0"
   }
 }
