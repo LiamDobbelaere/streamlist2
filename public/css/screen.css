@@ -264,6 +264,7 @@ a {
 .export-link {
   font-size: 16px;
   font-weight: normal;
+  margin-bottom: 8px;
 }
 
 .user-count {
@@ -271,6 +272,7 @@ a {
   font-size: 14px;
   font-weight: normal;
   margin-bottom: 24px;
+  margin-right: 8px;
 }
 
 /* v-tooltip */ 

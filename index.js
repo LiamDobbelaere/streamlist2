@@ -22,7 +22,7 @@ const SocketEvent = {
   DELETED_ENTRY: "deleted entry",
   SEND_ENTRIES: "send entries",
   CONNECTION_COUNT: "connection count",
-  PERMISSIONS_RECEIVED: "permissions received"
+  USERINFO_RECEIVED: "userinfo received"
 };
 
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -72,12 +72,28 @@ io.on('connection', async (socket) => {
 
   async function fetchPermissions() {
     if (sid) {
-      const res = await fetch(`http://${INTEROP_OTH_IP}:${INTEROP_OTH_PORT}/permissions/${sid}`);
-      const permissions = await res.json();
-      
-      socket.permissions = permissions;
-      socket.emit(SocketEvent.PERMISSIONS_RECEIVED, socket.permissions.filter(i => i === "MODIFY_STREAMLIST"));
+      const res = await fetch(`http://${INTEROP_OTH_IP}:${INTEROP_OTH_PORT}/session/${sid}/user-info`);
+      if (res.ok) {
+        const { email, permissions } = await res.json();
+        
+        socket.permissions = permissions;
+        socket.emit(SocketEvent.USERINFO_RECEIVED, {
+          email,
+          permissions
+        });
+      } else {
+        resetPermissions();
+      }
+    } else {
+      resetPermissions();
     }
+  }
+
+  function resetPermissions() {
+    socket.permissions = [];
+    socket.emit(SocketEvent.USERINFO_RECEIVED, {
+      permissions: socket.permissions
+    });
   }
 
   function hasModifyPermission() {

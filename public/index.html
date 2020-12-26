@@ -9,9 +9,14 @@
 </head>
 <body>
   <div id="app">
-    <h1>Streamlist <a class="export-link" href="export">Download .txt</a></h1>
+    <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: baseline;">
+      <h1>Streamlist</h1>
+      <a v-if="!email" class="login" href="/auth">Log in</a>
+      <span v-if="email">{{ email }}</span>
+    </div>
     <span class="user-count">{{ usersHere }}</span>
-    <input v-model="newEntryTitle" v-on:keyup.enter="createEntry" placeholder="Enter title.." />
+    <input v-if="canModify" v-model="newEntryTitle" v-on:keyup.enter="createEntry" placeholder="Enter title.." />
+    <a class="export-link" href="export">Download .txt</a>
     <div class="entries">
       <div class="entry" v-for="entry in entries" :key="entry.id" v-bind:class="entryClasses(entry)">
         <div class="entry-icon">
@@ -58,7 +63,7 @@
       DELETED_ENTRY: "deleted entry",
       SEND_ENTRIES: "send entries",
       CONNECTION_COUNT: "connection count",
-      PERMISSIONS_RECEIVED: "permissions received"
+      USERINFO_RECEIVED: "userinfo received"
     };
 
     let requestId = 0;
@@ -75,6 +80,7 @@
     const app = new Vue({
       el: "#app",
       data: {
+        email: "",
         canModify: false,
         connectionCount: "?",
         newEntryTitle: "",
@@ -97,8 +103,9 @@
       },
       mounted: function() {
         this.$nextTick(function () {
-          socket.on(SocketEvent.PERMISSIONS_RECEIVED, (permissions) => {
-            this.canModify = permissions.includes("MODIFY_STREAMLIST");
+          socket.on(SocketEvent.USERINFO_RECEIVED, (userinfo) => {
+            this.email = userinfo.email;
+            this.canModify = userinfo.permissions.includes("MODIFY_STREAMLIST");
           });
           socket.on(SocketEvent.SEND_ENTRIES, (entries) => this.entries = sortEntries(entries));
           socket.on(SocketEvent.CREATED_ENTRY, (newEntry, requestId) => {
