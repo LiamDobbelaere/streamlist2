@@ -68,14 +68,16 @@ io.on('connection', async (socket) => {
   socket.permissions = [];
 
   const sid = socket.request.cookies.sid;
-  if (sid) {
-    fetch(`http://${INTEROP_OTH_IP}:${INTEROP_OTH_PORT}/permissions/${sid}`).then((res) => {
-      return res.json();
-    }).then(permissions => {
+  await fetchPermissions(); 
+
+  async function fetchPermissions() {
+    if (sid) {
+      const res = await fetch(`http://${INTEROP_OTH_IP}:${INTEROP_OTH_PORT}/permissions/${sid}`);
+      const permissions = await res.json();
+      
       socket.permissions = permissions;
-  
       socket.emit(SocketEvent.PERMISSIONS_RECEIVED, socket.permissions.filter(i => i === "MODIFY_STREAMLIST"));
-    });
+    }
   }
 
   function hasModifyPermission() {
@@ -89,6 +91,7 @@ io.on('connection', async (socket) => {
   socket.emit(SocketEvent.SEND_ENTRIES, allEntries);
 
   socket.on(SocketEvent.CREATE_ENTRY, async (entry, requestId) => {
+    await fetchPermissions(); 
     if (!hasModifyPermission()) {
       return;
     }
@@ -106,6 +109,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on(SocketEvent.DELETE_ENTRY, async (id) => {
+    await fetchPermissions(); 
     if (!hasModifyPermission()) {
       return;
     }
@@ -124,6 +128,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on(SocketEvent.UPDATE_ENTRY, async (entry, requestId) => {
+    await fetchPermissions(); 
     if (!hasModifyPermission()) {
       return;
     }
