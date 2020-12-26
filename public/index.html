@@ -11,7 +11,7 @@
   <div id="app">
     <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: baseline;">
       <h1>Streamlist</h1>
-      <a v-if="!email" class="login" href="/auth">Log in</a>
+      <a v-if="!email" class="login" href="/auth/">Log in</a>
       <span v-if="email">{{ email }}</span>
     </div>
     <span class="user-count">{{ usersHere }}</span>
