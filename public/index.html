@@ -31,7 +31,7 @@
         <div v-if="!canModify" class="entry-title">
           {{ entry.title }}
         </div>
-        <div v-if="entry.id === editingEntryId">
+        <div v-if="entry.id === editingEntryId" class="entry-title">
           <input autofocus class="inline-input" v-model="renameEntryTitle" v-on:keyup.enter="updateEntry(entry, { title: renameEntryTitle })" placeholder="Enter title.." />
         </div>
         <div v-if="canModify" class="entry-actions">
@@ -43,6 +43,25 @@
           <button v-tooltip="'Game is versus'" class="button-small button-small-versus" v-bind:class="{ 'selected': entry.isVersus }" v-if="entry.type === 'game'" v-on:click="updateEntry(entry, { isVersus: !entry.isVersus })"></button>
           <div class="divider"></div>      
           <button v-tooltip="'Delete'" class="button-small button-small-delete" v-on:click="deleteEntry(entry)"></button>
+        </div>
+      </div>
+    </div>
+    <h2 v-if="deletedEntries.length">Recently deleted</h2>
+    <div v-if="deletedEntries.length" class="entries">
+      <div class="entry" v-for="entry in deletedEntries" :key="entry.id" v-bind:class="entryClasses(entry)">
+        <div class="entry-icon">
+        </div>
+        <div class="entry-flag-icons">
+          <div v-bind:class="{ 'invisible': !entry.isCoop }" class="entry-flag entry-flag-coop"></div>
+          <div v-bind:class="{ 'invisible': !entry.isVersus }" class="entry-flag entry-flag-versus"></div>
+        </div>
+        <div class="entry-title">
+          {{ entry.title }}
+        </div>
+        <div v-if="canModify" class="entry-actions">
+          <button v-tooltip="'Delete forever'" class="button-small button-small-delete" v-on:click="forceDeleteEntry(entry)"></button>
+          <div class="divider"></div>
+          <button v-tooltip="'Undelete'" class="button-small button-small-undelete" v-on:click="undeleteEntry(entry)"></button>
         </div>
       </div>
     </div>
@@ -61,7 +80,10 @@
       UPDATED_ENTRY: "updated entry",
       DELETE_ENTRY: "delete entry",
       DELETED_ENTRY: "deleted entry",
+      FORCE_DELETE_ENTRY: "force delete entry",
+      UNDELETE_ENTRY: "undelete entry",
       SEND_ENTRIES: "send entries",
+      SEND_DELETED_ENTRIES: "send deleted entries",
       CONNECTION_COUNT: "connection count",
       USERINFO_RECEIVED: "userinfo received"
     };
@@ -86,6 +108,7 @@
         newEntryTitle: "",
         renameEntryTitle: "",
         entries: [],
+        deletedEntries: [],
         editingEntryId: null,
       },
       computed: {
@@ -108,6 +131,7 @@
             this.canModify = userinfo.permissions.includes("MODIFY_STREAMLIST");
           });
           socket.on(SocketEvent.SEND_ENTRIES, (entries) => this.entries = sortEntries(entries));
+          socket.on(SocketEvent.SEND_DELETED_ENTRIES, (entries) => this.deletedEntries = sortEntries(entries));
           socket.on(SocketEvent.CREATED_ENTRY, (newEntry, requestId) => {
             if (requestId) {
               this.entries = this.entries.filter(entry => entry.requestId !== requestId);
@@ -179,6 +203,12 @@
           } : entry));
 
           socket.emit(SocketEvent.DELETE_ENTRY, entryToDelete.id);
+        },
+        forceDeleteEntry: function(entryToDelete) {
+          socket.emit(SocketEvent.FORCE_DELETE_ENTRY, entryToDelete.id);
+        },
+        undeleteEntry: function(entryToUndelete) {
+          socket.emit(SocketEvent.UNDELETE_ENTRY, entryToUndelete.id);
         },
         entryClasses: function (entry) {
           return {

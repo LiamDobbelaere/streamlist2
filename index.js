@@ -2,7 +2,8 @@ require('dotenv').config();
 const { 
   PORT, 
   INTEROP_OTH_IP,
-  INTEROP_OTH_PORT
+  INTEROP_OTH_PORT,
+  INTEROP_OTH_DISABLED
 } = process.env;
 
 const express = require('express');
@@ -13,6 +14,7 @@ const cookieParser = require('socket.io-cookie-parser');
 const fetch = require('node-fetch');
 const db = require('./db');
 const path = require('path');
+const { Op } = require("sequelize");
 const SocketEvent = {
   CREATE_ENTRY: "create entry",
   CREATED_ENTRY: "created entry",
@@ -20,7 +22,10 @@ const SocketEvent = {
   UPDATED_ENTRY: "updated entry",
   DELETE_ENTRY: "delete entry",
   DELETED_ENTRY: "deleted entry",
+  FORCE_DELETE_ENTRY: "force delete entry",
+  UNDELETE_ENTRY: "undelete entry",
   SEND_ENTRIES: "send entries",
+  SEND_DELETED_ENTRIES: "send deleted entries",
   CONNECTION_COUNT: "connection count",
   USERINFO_RECEIVED: "userinfo received"
 };
@@ -71,6 +76,16 @@ io.on('connection', async (socket) => {
   await fetchPermissions(); 
 
   async function fetchPermissions() {
+    if (+INTEROP_OTH_DISABLED === 1) {
+      const perms = ["MODIFY_STREAMLIST"];
+      socket.permissions = perms;
+      socket.emit(SocketEvent.USERINFO_RECEIVED, {
+        email: "",
+        permissions: perms
+      });
+      return;
+    }
+
     if (sid) {
       const res = await fetch(`http://${INTEROP_OTH_IP}:${INTEROP_OTH_PORT}/session/${sid}/user-info`);
       if (res.ok) {
@@ -97,14 +112,35 @@ io.on('connection', async (socket) => {
   }
 
   function hasModifyPermission() {
+    if (+INTEROP_OTH_DISABLED === 1) {
+      return true;
+    }
+
     return socket.permissions.includes("MODIFY_STREAMLIST");
   }
 
   connectionCount++;
   io.emit(SocketEvent.CONNECTION_COUNT, connectionCount);
 
+  async function getDeletedEntries() {
+    return db.StreamList.findAll({
+      where: {
+        deletedAt: {
+          [Op.ne]: null
+        }
+      },
+      order: [
+        ['deletedAt', 'DESC']
+      ],
+      limit: 5,
+      paranoid: false
+    });
+  }
+
   const allEntries = await db.StreamList.findAll();
+  const deletedEntries = await getDeletedEntries();
   socket.emit(SocketEvent.SEND_ENTRIES, allEntries);
+  socket.emit(SocketEvent.SEND_DELETED_ENTRIES, deletedEntries);
 
   socket.on(SocketEvent.CREATE_ENTRY, async (entry, requestId) => {
     await fetchPermissions(); 
@@ -141,6 +177,60 @@ io.on('connection', async (socket) => {
     });
     
     io.emit(SocketEvent.DELETED_ENTRY, id);
+
+    const newDeletedEntries = await getDeletedEntries();
+    io.emit(SocketEvent.SEND_DELETED_ENTRIES, newDeletedEntries);
+  });
+
+  socket.on(SocketEvent.FORCE_DELETE_ENTRY, async (id) => {
+    await fetchPermissions(); 
+    if (!hasModifyPermission()) {
+      return;
+    }
+
+    if (!id) {
+      return;
+    }
+
+    await db.StreamList.destroy({
+      where: {
+        id
+      },
+      force: true,
+      paranoid: false
+    });
+
+    const newDeletedEntries = await getDeletedEntries();
+    
+    io.emit(SocketEvent.SEND_DELETED_ENTRIES, newDeletedEntries);
+  });
+
+  socket.on(SocketEvent.UNDELETE_ENTRY, async (id) => {
+    await fetchPermissions(); 
+    if (!hasModifyPermission()) {
+      return;
+    }
+
+    if (!id) {
+      return;
+    }
+
+    const entry = await db.StreamList.findOne({
+      where: {
+        id
+      },
+      paranoid: false
+    });
+    if (!entry) {
+      return;
+    }
+
+    await entry.restore();
+
+    const newDeletedEntries = await getDeletedEntries();
+
+    io.emit(SocketEvent.CREATED_ENTRY, entry);
+    io.emit(SocketEvent.SEND_DELETED_ENTRIES, newDeletedEntries);
   });
 
   socket.on(SocketEvent.UPDATE_ENTRY, async (entry, requestId) => {
