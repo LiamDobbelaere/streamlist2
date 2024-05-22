@@ -1,3 +1,5 @@
 node_modules
 .env
 streamlist2.db
+oth.db
+sessions

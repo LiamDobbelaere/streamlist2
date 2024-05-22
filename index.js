@@ -1,19 +1,15 @@
-require('dotenv').config();
-const { 
-  PORT, 
-  INTEROP_OTH_IP,
-  INTEROP_OTH_PORT,
-  INTEROP_OTH_DISABLED
-} = process.env;
+require("dotenv").config();
+const { PORT, INTEROP_OTH_DISABLED } = process.env;
 
-const express = require('express');
+const oth = require("./oth");
+const express = require("express");
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
-const cookieParser = require('socket.io-cookie-parser');
-const fetch = require('node-fetch');
-const db = require('./db');
-const path = require('path');
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+const cookieParser = require("socket.io-cookie-parser");
+const fetch = require("node-fetch");
+const db = require("./db");
+const path = require("path");
 const { Op } = require("sequelize");
 const SocketEvent = {
   CREATE_ENTRY: "create entry",
@@ -27,11 +23,12 @@ const SocketEvent = {
   SEND_ENTRIES: "send entries",
   SEND_DELETED_ENTRIES: "send deleted entries",
   CONNECTION_COUNT: "connection count",
-  USERINFO_RECEIVED: "userinfo received"
+  USERINFO_RECEIVED: "userinfo received",
 };
 
-app.use('/', express.static(path.join(__dirname, 'public')));
-app.get('/export', async (req, res) => {
+app.use("/", express.static(path.join(__dirname, "public")));
+app.use("/oth", oth.app);
+app.get("/export", async (req, res) => {
   const streamItems = await db.StreamList.findAll();
   const itemsByType = streamItems.reduce((acc, streamItem) => {
     acc[streamItem.type] = acc[streamItem.type] || [];
@@ -46,13 +43,13 @@ app.get('/export', async (req, res) => {
 
   let finalText = "";
   let first = true;
-  Object.keys(itemsByType).forEach(key => {
+  Object.keys(itemsByType).forEach((key) => {
     if (!first) {
       finalText += "\r\n";
     }
     finalText += key.toUpperCase() + "\r\n";
 
-    itemsByType[key].forEach(item => {
+    itemsByType[key].forEach((item) => {
       finalText += item + "\r\n";
     });
 
@@ -60,8 +57,8 @@ app.get('/export', async (req, res) => {
   });
 
   res.writeHead(200, {
-    'Content-Type': 'application/force-download',
-    'Content-disposition':'attachment; filename=gamelist.txt'
+    "Content-Type": "application/force-download",
+    "Content-disposition": "attachment; filename=gamelist.txt",
   });
   res.end(finalText);
 });
@@ -69,11 +66,11 @@ app.get('/export', async (req, res) => {
 io.use(cookieParser());
 
 let connectionCount = 0;
-io.on('connection', async (socket) => {
+io.on("connection", async (socket) => {
   socket.permissions = [];
 
   const sid = socket.request.cookies.sid;
-  await fetchPermissions(); 
+  await fetchPermissions();
 
   async function fetchPermissions() {
     if (+INTEROP_OTH_DISABLED === 1) {
@@ -81,22 +78,23 @@ io.on('connection', async (socket) => {
       socket.permissions = perms;
       socket.emit(SocketEvent.USERINFO_RECEIVED, {
         email: "",
-        permissions: perms
+        permissions: perms,
       });
       return;
     }
 
     if (sid) {
-      const res = await fetch(`http://${INTEROP_OTH_IP}:${INTEROP_OTH_PORT}/session/${sid}/user-info`);
-      if (res.ok) {
-        const { email, permissions } = await res.json();
-        
+      try {
+        const res = await oth.getPermissions(sid);
+
+        const { email, permissions } = res;
+
         socket.permissions = permissions;
         socket.emit(SocketEvent.USERINFO_RECEIVED, {
           email,
-          permissions
+          permissions,
         });
-      } else {
+      } catch {
         resetPermissions();
       }
     } else {
@@ -107,7 +105,7 @@ io.on('connection', async (socket) => {
   function resetPermissions() {
     socket.permissions = [];
     socket.emit(SocketEvent.USERINFO_RECEIVED, {
-      permissions: socket.permissions
+      permissions: socket.permissions,
     });
   }
 
@@ -126,14 +124,12 @@ io.on('connection', async (socket) => {
     return db.StreamList.findAll({
       where: {
         deletedAt: {
-          [Op.ne]: null
-        }
+          [Op.ne]: null,
+        },
       },
-      order: [
-        ['deletedAt', 'DESC']
-      ],
+      order: [["deletedAt", "DESC"]],
       limit: 5,
-      paranoid: false
+      paranoid: false,
     });
   }
 
@@ -143,7 +139,7 @@ io.on('connection', async (socket) => {
   socket.emit(SocketEvent.SEND_DELETED_ENTRIES, deletedEntries);
 
   socket.on(SocketEvent.CREATE_ENTRY, async (entry, requestId) => {
-    await fetchPermissions(); 
+    await fetchPermissions();
     if (!hasModifyPermission()) {
       return;
     }
@@ -152,16 +148,18 @@ io.on('connection', async (socket) => {
       return;
     }
 
-    const newEntry = (await db.StreamList.create({
-      title: entry.title
-    })).get({ plain: true });
+    const newEntry = (
+      await db.StreamList.create({
+        title: entry.title,
+      })
+    ).get({ plain: true });
 
     socket.broadcast.emit(SocketEvent.CREATED_ENTRY, newEntry);
     socket.emit(SocketEvent.CREATED_ENTRY, newEntry, requestId);
   });
 
   socket.on(SocketEvent.DELETE_ENTRY, async (id) => {
-    await fetchPermissions(); 
+    await fetchPermissions();
     if (!hasModifyPermission()) {
       return;
     }
@@ -172,10 +170,10 @@ io.on('connection', async (socket) => {
 
     await db.StreamList.destroy({
       where: {
-        id
-      }
+        id,
+      },
     });
-    
+
     io.emit(SocketEvent.DELETED_ENTRY, id);
 
     const newDeletedEntries = await getDeletedEntries();
@@ -183,7 +181,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on(SocketEvent.FORCE_DELETE_ENTRY, async (id) => {
-    await fetchPermissions(); 
+    await fetchPermissions();
     if (!hasModifyPermission()) {
       return;
     }
@@ -194,19 +192,19 @@ io.on('connection', async (socket) => {
 
     await db.StreamList.destroy({
       where: {
-        id
+        id,
       },
       force: true,
-      paranoid: false
+      paranoid: false,
     });
 
     const newDeletedEntries = await getDeletedEntries();
-    
+
     io.emit(SocketEvent.SEND_DELETED_ENTRIES, newDeletedEntries);
   });
 
   socket.on(SocketEvent.UNDELETE_ENTRY, async (id) => {
-    await fetchPermissions(); 
+    await fetchPermissions();
     if (!hasModifyPermission()) {
       return;
     }
@@ -217,9 +215,9 @@ io.on('connection', async (socket) => {
 
     const entry = await db.StreamList.findOne({
       where: {
-        id
+        id,
       },
-      paranoid: false
+      paranoid: false,
     });
     if (!entry) {
       return;
@@ -234,33 +232,39 @@ io.on('connection', async (socket) => {
   });
 
   socket.on(SocketEvent.UPDATE_ENTRY, async (entry, requestId) => {
-    await fetchPermissions(); 
+    await fetchPermissions();
     if (!hasModifyPermission()) {
       return;
     }
 
-    await db.StreamList.update({
-      title: entry.title,
-      type: entry.type,
-      isCoop: entry.type === "game" && entry.isCoop,
-      isVersus: entry.type === "game" && entry.isVersus
-    }, {
-      where: {
-        id: entry.id
+    await db.StreamList.update(
+      {
+        title: entry.title,
+        type: entry.type,
+        isCoop: entry.type === "game" && entry.isCoop,
+        isVersus: entry.type === "game" && entry.isVersus,
+      },
+      {
+        where: {
+          id: entry.id,
+        },
       }
-    });
+    );
 
-    const updatedEntry = await db.StreamList.findOne({
-      where: {
-        id: entry.id
-      }
-    }, { plain: true });
+    const updatedEntry = await db.StreamList.findOne(
+      {
+        where: {
+          id: entry.id,
+        },
+      },
+      { plain: true }
+    );
 
     socket.broadcast.emit(SocketEvent.UPDATED_ENTRY, updatedEntry);
     socket.emit(SocketEvent.UPDATED_ENTRY, updatedEntry, requestId);
   });
 
-  socket.on('disconnect', () => {
+  socket.on("disconnect", () => {
     connectionCount--;
     io.emit(SocketEvent.CONNECTION_COUNT, connectionCount);
   });
