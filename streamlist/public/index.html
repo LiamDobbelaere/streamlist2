@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="css/screen.css" />
+    <title>Streamlist</title>
+  </head>
+  <body>
+    <div id="app">
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: baseline;
+        "
+      >
+        <h1>Streamlist</h1>
+        <a v-if="!email" class="login" href="/oth/">Log in</a>
+        <span v-if="email">{{ email }}</span>
+      </div>
+      <span class="user-count">{{ usersHere }}</span>
+      <input
+        v-if="canModify"
+        v-model="newEntryTitle"
+        v-on:keyup.enter="createEntry"
+        placeholder="Enter title.."
+      />
+      <a class="export-link" href="export">Download .txt</a>
+      <div class="entries">
+        <div
+          class="entry"
+          v-for="entry in entries"
+          :key="entry.id"
+          v-bind:class="entryClasses(entry)"
+        >
+          <div class="entry-icon"></div>
+          <div class="entry-flag-icons">
+            <div
+              v-bind:class="{ 'invisible': !entry.isCoop }"
+              class="entry-flag entry-flag-coop"
+            ></div>
+            <div
+              v-bind:class="{ 'invisible': !entry.isVersus }"
+              class="entry-flag entry-flag-versus"
+            ></div>
+          </div>
+          <div
+            v-if="canModify && entry.id !== editingEntryId"
+            v-on:click="editingEntryId = entry.id; renameEntryTitle = entry.title"
+            class="entry-title"
+          >
+            {{ entry.title }}
+          </div>
+          <div v-if="!canModify" class="entry-title">{{ entry.title }}</div>
+          <div v-if="entry.id === editingEntryId" class="entry-title">
+            <input
+              autofocus
+              class="inline-input"
+              v-model="renameEntryTitle"
+              v-on:keyup.enter="updateEntry(entry, { title: renameEntryTitle })"
+              placeholder="Enter title.."
+            />
+          </div>
+          <div v-if="canModify" class="entry-actions">
+            <button
+              v-tooltip="'Mark as game'"
+              class="button-small button-small-game"
+              v-if="entry.type !== 'game'"
+              v-on:click="updateEntry(entry, { type: 'game' })"
+            ></button>
+            <button
+              v-tooltip="'Mark as movie'"
+              class="button-small button-small-movie"
+              v-if="entry.type !== 'movie'"
+              v-on:click="updateEntry(entry, { type: 'movie' })"
+            ></button>
+            <button
+              v-tooltip="'Mark as series'"
+              class="button-small button-small-series"
+              v-if="entry.type !== 'series'"
+              v-on:click="updateEntry(entry, { type: 'series' })"
+            ></button>
+            <div class="divider" v-if="entry.type === 'game'"></div>
+            <button
+              v-tooltip="'Game is coop'"
+              class="button-small button-small-coop"
+              v-bind:class="{ 'selected': entry.isCoop }"
+              v-if="entry.type === 'game'"
+              v-on:click="updateEntry(entry, { isCoop: !entry.isCoop })"
+            ></button>
+            <button
+              v-tooltip="'Game is versus'"
+              class="button-small button-small-versus"
+              v-bind:class="{ 'selected': entry.isVersus }"
+              v-if="entry.type === 'game'"
+              v-on:click="updateEntry(entry, { isVersus: !entry.isVersus })"
+            ></button>
+            <div class="divider"></div>
+            <button
+              v-tooltip="'Delete'"
+              class="button-small button-small-delete"
+              v-on:click="deleteEntry(entry)"
+            ></button>
+          </div>
+        </div>
+      </div>
+      <h2 v-if="deletedEntries.length">Recently deleted</h2>
+      <div v-if="deletedEntries.length" class="entries">
+        <div
+          class="entry"
+          v-for="entry in deletedEntries"
+          :key="entry.id"
+          v-bind:class="entryClasses(entry)"
+        >
+          <div class="entry-icon"></div>
+          <div class="entry-flag-icons">
+            <div
+              v-bind:class="{ 'invisible': !entry.isCoop }"
+              class="entry-flag entry-flag-coop"
+            ></div>
+            <div
+              v-bind:class="{ 'invisible': !entry.isVersus }"
+              class="entry-flag entry-flag-versus"
+            ></div>
+          </div>
+          <div class="entry-title">{{ entry.title }}</div>
+          <div v-if="canModify" class="entry-actions">
+            <button
+              v-tooltip="'Delete forever'"
+              class="button-small button-small-delete"
+              v-on:click="forceDeleteEntry(entry)"
+            ></button>
+            <div class="divider"></div>
+            <button
+              v-tooltip="'Undelete'"
+              class="button-small button-small-undelete"
+              v-on:click="undeleteEntry(entry)"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.com/v-tooltip@2.1.2"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.min.js"></script>
+    <script>
+      const socket = io(window.location.host, {
+        path: "/socket.io",
+      });
+      const SocketEvent = {
+        CREATE_ENTRY: "create entry",
+        CREATED_ENTRY: "created entry",
+        UPDATE_ENTRY: "update entry",
+        UPDATED_ENTRY: "updated entry",
+        DELETE_ENTRY: "delete entry",
+        DELETED_ENTRY: "deleted entry",
+        FORCE_DELETE_ENTRY: "force delete entry",
+        UNDELETE_ENTRY: "undelete entry",
+        SEND_ENTRIES: "send entries",
+        SEND_DELETED_ENTRIES: "send deleted entries",
+        CONNECTION_COUNT: "connection count",
+        USERINFO_RECEIVED: "userinfo received",
+      };
+
+      let requestId = 0;
+      function generateRequestId() {
+        return ++requestId;
+      }
+
+      function sortEntries(entries) {
+        return entries.sort((a, b) => {
+          return a.type.localeCompare(b.type) || a.title.localeCompare(b.title);
+        });
+      }
+
+      const app = new Vue({
+        el: "#app",
+        data: {
+          email: "",
+          canModify: false,
+          connectionCount: "?",
+          newEntryTitle: "",
+          renameEntryTitle: "",
+          entries: [],
+          deletedEntries: [],
+          editingEntryId: null,
+        },
+        computed: {
+          usersHere: function () {
+            const realAmount = this.connectionCount - 1;
+            switch (realAmount) {
+              case 0:
+                return "It's just you here right now";
+              case 1:
+                return "There's one other person here right now";
+              default:
+                return `There's ${realAmount} other people here right now`;
+            }
+          },
+        },
+        mounted: function () {
+          this.$nextTick(function () {
+            socket.on(SocketEvent.USERINFO_RECEIVED, (userinfo) => {
+              this.email = userinfo.email;
+              this.canModify =
+                userinfo.permissions.includes("MODIFY_STREAMLIST");
+            });
+            socket.on(
+              SocketEvent.SEND_ENTRIES,
+              (entries) => (this.entries = sortEntries(entries))
+            );
+            socket.on(
+              SocketEvent.SEND_DELETED_ENTRIES,
+              (entries) => (this.deletedEntries = entries)
+            );
+            socket.on(SocketEvent.CREATED_ENTRY, (newEntry, requestId) => {
+              if (requestId) {
+                this.entries = this.entries.filter(
+                  (entry) => entry.requestId !== requestId
+                );
+              }
+
+              this.entries = sortEntries([...this.entries, newEntry]);
+            });
+            socket.on(SocketEvent.UPDATED_ENTRY, (updatedEntry, requestId) => {
+              this.entries = sortEntries(
+                this.entries.map((entry) =>
+                  entry.id === updatedEntry.id
+                    ? {
+                        ...updatedEntry,
+                        updated: !requestId && +new Date(),
+                      }
+                    : entry
+                )
+              );
+
+              if (!requestId) {
+                setTimeout(() => {
+                  const foundEntry = this.entries.find(
+                    (val) => val.id === updatedEntry.id
+                  );
+                  if (foundEntry && +new Date() - foundEntry.updated >= 2000) {
+                    this.entries = this.entries.map((entry) =>
+                      entry.id === updatedEntry.id
+                        ? {
+                            ...updatedEntry,
+                            updated: undefined,
+                          }
+                        : entry
+                    );
+                  }
+                }, 2000);
+              }
+            });
+            socket.on(SocketEvent.DELETED_ENTRY, (id) => {
+              this.entries = sortEntries(
+                this.entries.filter((entry) => entry.id !== id)
+              );
+            });
+            socket.on(SocketEvent.CONNECTION_COUNT, (count) => {
+              this.connectionCount = count;
+            });
+          });
+        },
+        methods: {
+          createEntry: function (e) {
+            if (!this.newEntryTitle.trim()) {
+              return;
+            }
+
+            const requestId = generateRequestId();
+            this.entries = sortEntries([
+              ...this.entries,
+              { title: this.newEntryTitle, requestId, type: "game" },
+            ]);
+
+            socket.emit(
+              SocketEvent.CREATE_ENTRY,
+              {
+                title: this.newEntryTitle,
+              },
+              requestId
+            );
+
+            this.newEntryTitle = "";
+          },
+          updateEntry: function (entryToUpdate, patch) {
+            const requestId = generateRequestId();
+            this.entries = sortEntries(
+              this.entries.map((entry) =>
+                entry === entryToUpdate
+                  ? {
+                      ...entry,
+                      ...patch,
+                      requestId,
+                    }
+                  : entry
+              )
+            );
+
+            socket.emit(
+              SocketEvent.UPDATE_ENTRY,
+              {
+                ...entryToUpdate,
+                ...patch,
+              },
+              requestId
+            );
+
+            this.editingEntryId = null;
+          },
+          deleteEntry: function (entryToDelete) {
+            const requestId = generateRequestId();
+            this.entries = sortEntries(
+              this.entries.map((entry) =>
+                entry === entryToDelete
+                  ? {
+                      ...entryToDelete,
+                      requestId,
+                    }
+                  : entry
+              )
+            );
+
+            socket.emit(SocketEvent.DELETE_ENTRY, entryToDelete.id);
+          },
+          forceDeleteEntry: function (entryToDelete) {
+            socket.emit(SocketEvent.FORCE_DELETE_ENTRY, entryToDelete.id);
+          },
+          undeleteEntry: function (entryToUndelete) {
+            socket.emit(SocketEvent.UNDELETE_ENTRY, entryToUndelete.id);
+          },
+          entryClasses: function (entry) {
+            return {
+              pending: entry.requestId,
+              updated: !!entry.updated,
+              ["entry-type-" + entry.type]: true,
+            };
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

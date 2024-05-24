@@ -44,14 +44,11 @@ const StreamList = sequelize.define(
   }
 );
 
-function isReady() {
-  return sequelize
-    .authenticate()
-    .then(() => sequelize.sync({ alter: true }))
-    .catch(console.log);
-}
+sequelize
+  .authenticate()
+  .then(() => sequelize.sync({ alter: true }))
+  .catch(console.log);
 
 module.exports = {
   StreamList,
-  isReady,
 };
