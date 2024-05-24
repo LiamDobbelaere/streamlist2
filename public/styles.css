@@ -1,0 +1,75 @@
+* {
+  transition: color .2s, background-color .2s;
+}
+
+html, body {
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  font-family: "Roboto";
+  color: var(--foreground);
+  background-color: var(--background);
+}
+
+.text-logo {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  font-size: 24px;
+  max-width: 100px;
+  position: relative;
+  line-height: 32px;
+  
+}
+
+.text-logo span:last-child {
+  color: var(--foreground-on-background);
+}
+
+nav {
+  background-color: var(--nav-background);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 50px;
+}
+
+nav ul {
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+}
+
+nav ul li {
+  margin: 0 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+nav ul li a:has(.text-logo), nav ul li a:hover:has(.text-logo) {
+  align-items: center;
+  background: none;
+}
+
+nav ul li a {
+  position: relative;
+  top: calc(50% - 8px);
+  height: 32px;
+  display: flex;
+  align-items: flex-end;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--foreground);
+  padding: 16px;
+  color: var(--nav-button-foreground);
+  background-color: var(--nav-button-background);
+}
+
+nav ul li a:hover {
+  background-color: var(--nav-button-hover-background);
+}

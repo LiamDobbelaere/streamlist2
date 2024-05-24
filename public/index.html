@@ -4,8 +4,87 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Liam Swift</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <link rel="stylesheet" href="normalize.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    Hello
+    <nav>
+      <ul>
+        <li>
+          <a href="/">
+            <div class="text-logo">
+              <span>Liam</span>
+              <span>Swift</span>
+            </div>
+          </a>
+        </li>
+        <li><a href="#" data-palette="0">Games</a></li>
+        <li><a href="#" data-palette="1">Music</a></li>
+        <li><a href="#" data-palette="2">Level Design</a></li>
+        <li><a href="/streamlist" data-palette="3">Streamlist</a></li>
+        <li><a href="/oth" data-palette="4">Login</a></li>
+      </ul>
+    </nav>
+
+    <script>
+      const colorPalettesById = {
+        0: {
+          "--foreground": "#edf2f4",
+          "--background": "#f8f8f2",
+          "--foreground-on-background": "#000",
+          "--nav-background": "#ff2449",
+          "--nav-button-background": "#ff2449",
+          "--nav-button-hover-background": "#ff2449",
+        },
+        1: {
+          "--foreground": "#edf2f4",
+          "--background": "#2b2d42",
+          "--nav-background": "#1ed760",
+          "--nav-button-foreground": "#000",
+          "--nav-button-background": "#1ed760",
+          "--nav-button-hover-background": "#1ed760",
+        },
+        2: {
+          "--foreground": "#edf2f4",
+          "--background": "#2b2d42",
+          "--nav-background": "#ffcc00",
+          "--nav-button-foreground": "#000",
+          "--nav-button-background": "#ffcc00",
+          "--nav-button-hover-background": "#ffcc00",
+        },
+      };
+
+      const applyPalette = (paletteId) => {
+        const palette = colorPalettesById[paletteId];
+
+        if (!palette["--foreground-on-background"]) {
+          palette["--foreground-on-background"] = palette["--foreground"];
+        }
+
+        if (!palette["--nav-button-foreground"]) {
+          palette["--nav-button-foreground"] = palette["--foreground"];
+        }
+
+        Object.entries(palette).forEach(([key, value]) => {
+          document.documentElement.style.setProperty(key, value);
+        });
+      };
+      applyPalette(0);
+
+      document.querySelectorAll("[data-palette]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const paletteId = el.getAttribute("data-palette");
+          applyPalette(paletteId);
+        });
+
+        /*el.addEventListener("mouseout", () => {
+          applyPalette(0);
+        });*/
+      });
+    </script>
   </body>
 </html>
