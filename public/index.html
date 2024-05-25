@@ -22,9 +22,11 @@
             </div>
           </a>
         </li>
-        <li><a href="#" data-palette="0">Games</a></li>
-        <li><a href="#" data-palette="1" data-surname="Swift">Music</a></li>
-        <li><a href="#" data-palette="2">Level Design</a></li>
+        <li><a href="#games" data-palette="0">Games</a></li>
+        <li>
+          <a href="#music" data-palette="1" data-surname="Swift">Music</a>
+        </li>
+        <li><a href="#level-design" data-palette="2">Level Design</a></li>
         <li><a href="/streamlist" data-palette="3">Streamlist</a></li>
         <li><a href="/oth" data-palette="4">Login</a></li>
       </ul>
@@ -221,9 +223,17 @@
         });
 
         /*el.addEventListener("mouseout", () => {
-          applyPalette(0);
-        });*/
+                applyPalette(0);
+              });*/
       });
+
+      const hash = window.location.hash;
+      if (hash) {
+        const link = document.querySelector(`[href="${hash}"]`);
+        if (link) {
+          link.click();
+        }
+      }
     </script>
   </body>
 </html>
