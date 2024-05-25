@@ -18,17 +18,134 @@
           <a href="/">
             <div class="text-logo">
               <span>Liam</span>
-              <span>Swift</span>
+              <span class="surname">Dobbelaere</span>
             </div>
           </a>
         </li>
         <li><a href="#" data-palette="0">Games</a></li>
-        <li><a href="#" data-palette="1">Music</a></li>
+        <li><a href="#" data-palette="1" data-surname="Swift">Music</a></li>
         <li><a href="#" data-palette="2">Level Design</a></li>
         <li><a href="/streamlist" data-palette="3">Streamlist</a></li>
         <li><a href="/oth" data-palette="4">Login</a></li>
       </ul>
     </nav>
+
+    <div data-visible-when="0" class="page-content-wrapper">
+      <section class="two-column">
+        <article>
+          <p>
+            Visit
+            <a href="https://liam-swift.itch.io/" target="_blank"
+              >https://liam-swift.itch.io/</a
+            >
+            to see my games. This is not a complete list of everything I've ever
+            made, but it's a nice selection of "released" things.
+          </p>
+          <p>
+            I've been making games since I was 10 years old (around 2007). Back
+            then, I used Game Maker 6/7/8/Studio. Since then, I have also
+            dabbled in Unity (mostly), a little bit of Unreal Engine, and Godot.
+          </p>
+          <p>
+            Creating games was probably the kickstart for my interest in
+            Software Development. Game Maker offered GML (Game Maker Language),
+            which was the first programming language I ever learned.
+          </p>
+          <p>
+            You can also find plenty of public programming projects of mine on
+            <a href="https://github.com/LiamDobbelaere/" target="_blank"
+              >GitHub</a
+            >.
+          </p>
+        </article>
+        <article class="image-hero">
+          <a href="https://liam-swift.itch.io/" target="_blank">
+            <img
+              class="willy-wonky"
+              src="./media/itch-preview.png"
+              alt="itch.io preview"
+            />
+          </a>
+        </article>
+      </section>
+    </div>
+
+    <div data-visible-when="1" class="page-content-wrapper">
+      <section class="two-column">
+        <article>
+          <p>
+            You can find my music on
+            <a
+              href="https://open.spotify.com/artist/3jBHEwJmwwQX9jZ2IKOs8j?si=1dbd6c0de6814d3f"
+              target="_blank"
+              >Spotify</a
+            >.
+          </p>
+          <p>
+            I've been composing since I was 12 years old (around 2009). I use FL
+            Studio for every track, writing in a variety of genres (though
+            mostly electronic).
+          </p>
+          <p>
+            I've never really educated myself on music theory, rather I just
+            write music with the primary goal of expressing my own emotions and
+            experiences.
+          </p>
+        </article>
+        <article class="image-hero">
+          <a
+            href="https://open.spotify.com/artist/3jBHEwJmwwQX9jZ2IKOs8j?si=1dbd6c0de6814d3f"
+            target="_blank"
+          >
+            <img
+              class="willy-wonky--spotify"
+              src="./media/spotify-preview.png"
+              alt="Spotify preview"
+            />
+          </a>
+        </article>
+      </section>
+    </div>
+
+    <div data-visible-when="2" class="page-content-wrapper">
+      <section class="two-column">
+        <article>
+          <p>
+            In january 2023, I joined
+            <a
+              href="https://www.gameart.cgmasteracademy.com/courses/level-design-for-games"
+              target="_blank"
+              >CGMA Level Design for Games</a
+            >
+            to learn more about level design. I had always been interested in
+            the different environments in games, particularly the layouts and
+            spaces that the player interacts with.
+          </p>
+          <p>
+            While I did finish my CGMA course, I unfortunately never got
+            certified as I didn't finish all the homework. So, this chapter is
+            still in construction as I'm working on learning and gaining
+            experience. Perhaps one day I'll return to CGMA to redo the course
+            and get my certificate.
+          </p>
+          <p>
+            I have a
+            <a href="https://liamdobbelaere.github.io/" target="_blank"
+              >small GitHub blog</a
+            >
+            where I wrote a bit about level design.
+          </p>
+        </article>
+        <article class="image-hero">
+          <a href="./media/level-design-preview.png" target="_blank">
+            <img
+              class="willy-wonky--level-design"
+              src="./media/level-design-preview.png"
+              alt="level design preview"
+          /></a>
+        </article>
+      </section>
+    </div>
 
     <script>
       const colorPalettesById = {
@@ -69,15 +186,37 @@
           palette["--nav-button-foreground"] = palette["--foreground"];
         }
 
+        showDivForPalette(paletteId);
+
         Object.entries(palette).forEach(([key, value]) => {
           document.documentElement.style.setProperty(key, value);
         });
       };
+      const hideAllDivs = () => {
+        document
+          .querySelectorAll("[data-visible-when]")
+          .forEach((el) => (el.style.display = "none"));
+      };
+      const showDivForPalette = (paletteId) => {
+        hideAllDivs();
+        const div = document.querySelector(
+          `[data-visible-when="${paletteId}"]`
+        );
+        if (div) {
+          div.style.display = "flex";
+        }
+      };
+
       applyPalette(0);
 
       document.querySelectorAll("[data-palette]").forEach((el) => {
         el.addEventListener("click", () => {
           const paletteId = el.getAttribute("data-palette");
+          const surname = el.getAttribute("data-surname");
+
+          document.querySelector(".surname").innerText =
+            surname || "Dobbelaere";
+
           applyPalette(paletteId);
         });
 
