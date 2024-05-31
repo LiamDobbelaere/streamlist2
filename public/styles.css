@@ -124,3 +124,13 @@ article.image-hero img.willy-wonky--spotify {
 article.image-hero img.willy-wonky--level-design {
   transform: scale(1.1) rotate(-5deg) translateX(0px) translateY(70px);
 }
+
+.full-page-video {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: -999;
+  opacity: 0.1;
+}
