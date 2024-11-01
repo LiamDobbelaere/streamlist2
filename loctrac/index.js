@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const path = require("path");
 const app = express();
 
 let lastLat = 0;
@@ -8,6 +9,7 @@ let lastLon = 0;
 const requestees = [];
 
 app.use(bodyParser.json());
+app.use("/", express.static(path.join(__dirname, "public")));
 
 app.get("/reg-loc", async (req, res) => {
   const lat = +req.query.lat;
