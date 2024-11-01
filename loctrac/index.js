@@ -49,6 +49,11 @@ app.get("/get-loc", async (req, res) => {
 });
 
 app.get("/get-reqs", async (req, res) => {
+  const key = req.query.key;
+  if (key !== LOCTRAC_ACCESS_KEY) {
+    return res.status(403).send("Unauthorized");
+  }
+  
   res.json({
     requestees,
   });
