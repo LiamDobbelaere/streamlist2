@@ -7,6 +7,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
+app.set('trust proxy', true);
 
 app.use(bodyParser.json());
 app.use("/", express.static(path.join(__dirname, "public")));
@@ -23,17 +24,18 @@ const loadFromJson = async (fileName, def = {}) => {
   }
 };
 
-const saveLatLon = async (lat, lon) => {
+const saveLatLon = async (lat, lon, date) => {
   const data = {
     lat,
     lon,
+    date,
   };
 
   await saveToJson("latlon.json", data);
 };
 
 const loadLatLon = async () => {
-  return await loadFromJson("latlon.json", { lat: -1, lon: -1 });
+  return await loadFromJson("latlon.json", { lat: -1, lon: -1, date: -1 });
 };
 
 const saveRequestees = async (requestees) => {
@@ -47,14 +49,16 @@ const loadRequestees = async () => {
 app.get("/reg-loc", async (req, res) => {
   const lat = +req.query.lat;
   const lon = +req.query.lon;
+  const date = new Date().toISOString();
 
   if (lat && lon) {
-    await saveLatLon(lat, lon);
+    await saveLatLon(lat, lon, date);
   }
 
   res.json({
     lat,
     lon,
+    date,
   });
 });
 
