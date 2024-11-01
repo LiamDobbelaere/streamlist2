@@ -1,3 +1,7 @@
+require('dotenv').config();
+
+const { LOCTRAC_ACCESS_KEY } = process.env;
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -27,6 +31,12 @@ app.get("/reg-loc", async (req, res) => {
 });
 
 app.get("/get-loc", async (req, res) => {
+  // get access key from request query parms
+  const key = req.query.key;
+  if (key !== LOCTRAC_ACCESS_KEY) {
+    return res.status(403).send("Unauthorized");
+  }
+
   const ip = req.ip;
   if (!requestees.includes(ip)) {
     requestees.push(ip);
