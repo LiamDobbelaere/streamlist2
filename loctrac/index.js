@@ -2,31 +2,59 @@ require('dotenv').config();
 
 const { LOCTRAC_ACCESS_KEY } = process.env;
 
+const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const app = express();
 
-let lastLat = 0;
-let lastLon = 0;
-
-const requestees = [];
-
 app.use(bodyParser.json());
 app.use("/", express.static(path.join(__dirname, "public")));
+
+const saveToJson = async (fileName, data) => {
+  fs.writeFileSync(fileName, JSON.stringify(data));
+};
+
+const loadFromJson = async (fileName, def = {}) => {
+  try {
+    return JSON.parse(fs.readFileSync(fileName));
+  } catch (e) {
+    return def;
+  }
+};
+
+const saveLatLon = async (lat, lon) => {
+  const data = {
+    lat,
+    lon,
+  };
+
+  await saveToJson("latlon.json", data);
+};
+
+const loadLatLon = async () => {
+  return await loadFromJson("latlon.json", { lat: -1, lon: -1 });
+};
+
+const saveRequestees = async (requestees) => {
+  await saveToJson("requestees.json", requestees);
+};
+
+const loadRequestees = async () => {
+  return await loadFromJson("requestees.json", []);
+};
 
 app.get("/reg-loc", async (req, res) => {
   const lat = +req.query.lat;
   const lon = +req.query.lon;
 
   if (lat && lon) {
-    lastLat = lat;
-    lastLon = lon;
+    await saveLatLon(lat, lon);
   }
 
   res.json({
-    lat: lastLat,
-    lon: lastLon,
+    lat,
+    lon,
   });
 });
 
@@ -38,14 +66,15 @@ app.get("/get-loc", async (req, res) => {
   }
 
   const ip = req.ip;
+  const requestees = await loadRequestees();
   if (!requestees.includes(ip)) {
     requestees.push(ip);
+    await saveRequestees(requestees);
   }
 
-  res.json({
-    lat: lastLat,
-    lon: lastLon,
-  });
+  const response = await loadLatLon();
+
+  res.json(response);
 });
 
 app.get("/get-reqs", async (req, res) => {
@@ -53,10 +82,10 @@ app.get("/get-reqs", async (req, res) => {
   if (key !== LOCTRAC_ACCESS_KEY) {
     return res.status(403).send("Unauthorized");
   }
-  
-  res.json({
-    requestees,
-  });
+
+  const requestees = await loadRequestees();
+
+  res.json(requestees);
 });
 
 module.exports = {
