@@ -49,7 +49,7 @@ const loadRequestees = async () => {
 app.get("/reg-loc", async (req, res) => {
   const lat = +req.query.lat;
   const lon = +req.query.lon;
-  const date = new Date().toISOString();
+  const date = new Date().valueOf();
 
   if (lat && lon) {
     await saveLatLon(lat, lon, date);
@@ -71,10 +71,8 @@ app.get("/get-loc", async (req, res) => {
 
   const ip = req.ip;
   const requestees = await loadRequestees();
-  if (!requestees.includes(ip)) {
-    requestees.push(ip);
-    await saveRequestees(requestees);
-  }
+  requestees.push(ip);
+  await saveRequestees(requestees);
 
   const response = await loadLatLon();
 

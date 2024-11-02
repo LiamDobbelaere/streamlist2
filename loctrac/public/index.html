@@ -48,7 +48,7 @@
                     updateLocation(data.lat, data.lon);
 
                     if (data.date) {
-                      document.getElementById('lastUpdated').textContent = 'Last updated: ' + data.date;
+                      document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date(data.date).toLocaleString();
                     }
                 }
             } catch (error) {
