@@ -71,7 +71,7 @@ app.get("/get-loc", async (req, res) => {
 
   const ip = req.ip;
   const requestees = await loadRequestees();
-  requestees.push(ip);
+  requestees.push([ip, new Date().valueOf()]);
   await saveRequestees(requestees);
 
   const response = await loadLatLon();
