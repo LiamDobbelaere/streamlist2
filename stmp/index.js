@@ -5,9 +5,10 @@ const path = require("path");
 let chatHistory = [];
 let queuedMessages = [];
 
+app.set('trust proxy', true);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.set('trust proxy', true);
 app.use("/", express.static(path.join(__dirname, "public")));
 
 // disable Access-Control-Allow-Origin
