@@ -17,9 +17,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// serve static files from the public directory
-app.use(express.static('public'));
-
 app.post('/set-chat', (req, res) => {
     chatHistory = req.body;
 
