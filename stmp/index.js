@@ -18,6 +18,15 @@ app.use((req, res, next) => {
     next();
 });
 
+// redirect /:lobbyId to / with ?lobbyId query parameter
+app.get('/:lobbyId', (req, res) => {
+    if (!req.params.lobbyId) {
+        return res.status(400).send('Lobby ID is required');
+    }
+
+    res.redirect('/?lobbyId=' + req.params.lobbyId);
+});
+
 app.post('/:lobbyId/set-chat', (req, res) => {
     if (!req.params.lobbyId) {
         return res.status(400).send('Lobby ID is required');

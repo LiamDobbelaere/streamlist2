@@ -104,10 +104,17 @@
     </div>
     
     <script>
+        // get lobbyId from query string
+        const urlParams = new URLSearchParams(window.location.search);
+        const lobbyId = urlParams.get('lobbyId');
+        if (!lobbyId) {
+            alert('No lobbyId provided in the URL, try /stmp/my-lobby');
+        }
+
         let lastHistoryString = '';
 
         async function fetchChatHistory() {
-            const response = await fetch('get-chat');
+            const response = await fetch(lobbyId + '/get-chat');
             const chatHistory = await response.json();
 
             const chatHistoryString = JSON.stringify(chatHistory);
@@ -169,7 +176,7 @@
                 if (message.trim() === '') return; // Ignore empty messages
 
                 // Send the message to the server
-                await fetch('queue-message', {
+                await fetch(lobbyId + '/queue-message', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
