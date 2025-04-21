@@ -27,8 +27,9 @@
           <a href="#music" data-palette="1" data-surname="Swift">Music</a>
         </li>
         <li><a href="#level-design" data-palette="2">Level Design</a></li>
-        <li><a href="/streamlist" data-palette="3">Streamlist</a></li>
-        <li><a href="/oth" data-palette="4">Login</a></li>
+        <li><a href="#3d-models" data-palette="3">3D Models</a></li>
+        <li><a href="/streamlist">Streamlist</a></li>
+        <li><a href="/oth">Login</a></li>
       </ul>
     </nav>
 
@@ -113,6 +114,73 @@
       </section>
     </div>
 
+    <div data-visible-when="3" class="page-content-wrapper">
+
+      <section class="two-column">
+        <article>
+          <p>When you're an indie dev, you have to pick up a lot of skills. 3D modeling was one of those things I had to learn over the time if I wanted to survive in the wild.</p>
+          <p>On the right, you will find a showcase of various 3D models I've made, all of them for a neat game in progress by Kyle, Cristina & I called <a target="_blank" href="https://monicasparadox.com/wishlist">Monica's Paradox</a>.</p>
+          <p class="smaller">The 3D models showcased here are the intellectual property of The Misfits and are protected by copyright laws. Unauthorized use, reproduction, or distribution of these models is strictly prohibited.</p>
+        </article>
+        <article class="image-hero">
+          <div class="flex-row">
+            <model-viewer
+              src="media/models/couch.glb"
+              alt="A 3D model of a couh"
+              ar
+              auto-rotate
+              camera-controls
+              >
+            </model-viewer>
+            <model-viewer
+            src="media/models/plant_small.glb"
+            alt="A 3D model of a small potted plant"
+            ar
+            auto-rotate
+            camera-controls
+            >
+            </model-viewer>
+          </div>
+          <div class="flex-row">
+            <model-viewer
+              src="media/models/plant.glb"
+              alt="A 3D model of a plant box"
+              ar
+              auto-rotate
+              camera-controls
+              >
+            </model-viewer>
+            <model-viewer
+              src="media/models/consoles.glb"
+              alt="A 3D model video game consoles on a table"
+              ar
+              auto-rotate
+              camera-controls
+              >
+            </model-viewer>
+          </div>
+          <div class="flex-row">
+            <model-viewer
+              src="media/models/notepad.glb"
+              alt="A 3D model of a notepad"
+              ar
+              auto-rotate
+              camera-controls
+              >
+            </model-viewer>
+            <model-viewer
+              src="media/models/binder.glb"
+              alt="A 3D model of a binder"
+              ar
+              auto-rotate
+              camera-controls
+              >
+            </model-viewer>
+          </div>
+        </article>
+      </section>
+    </div>
+
     <div data-visible-when="2" class="page-content-wrapper">
       <section class="two-column">
         <article>
@@ -153,6 +221,7 @@
       </section>
     </div>
 
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <script>
       const colorPalettesById = {
         0: {
@@ -178,6 +247,14 @@
           "--nav-button-foreground": "#000",
           "--nav-button-background": "#ffcc00",
           "--nav-button-hover-background": "#ccaa00",
+        },
+        3: {
+          "--foreground": "#edf2f4",
+          "--background": "#2b2d42",
+          "--nav-background": "#00aaff",
+          "--nav-button-foreground": "#000",
+          "--nav-button-background": "#00aaff",
+          "--nav-button-hover-background": "#0088cc",
         },
       };
 
@@ -225,10 +302,6 @@
 
           applyPalette(paletteId);
         });
-
-        /*el.addEventListener("mouseout", () => {
-                applyPalette(0);
-              });*/
       });
 
       const hash = window.location.hash;
