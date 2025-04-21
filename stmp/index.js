@@ -2,8 +2,8 @@ const express = require("express");
 const app = express();
 const path = require("path");
 
-let chatHistory = [];
-let queuedMessages = [];
+let chatHistoryByLobbyId = {};
+let queuedMessagesByLobbyId = [];
 
 app.set('trust proxy', true);
 
@@ -18,26 +18,43 @@ app.use((req, res, next) => {
     next();
 });
 
-app.post('/set-chat', (req, res) => {
-    chatHistory = req.body;
+app.post('/:lobbyId/set-chat', (req, res) => {
+    if (!req.params.lobbyId) {
+        return res.status(400).send('Lobby ID is required');
+    }
+
+    chatHistoryByLobbyId[req.params.lobbyId] = req.body;
 
     res.send('Chat history received and stored successfully');
 });
 
-app.get('/get-chat', (req, res) => {
-    res.json(chatHistory);
+app.get('/:lobbyId/get-chat', (req, res) => {
+    if (!req.params.lobbyId) {
+        return res.status(400).send('Lobby ID is required');
+    }
+
+    res.json(chatHistoryByLobbyId[req.params.lobbyId] || []);
 });
 
-app.post('/queue-message', (req, res) => {
-    queuedMessages.push(req.body);
+app.post('/:lobbyId/queue-message', (req, res) => {
+    if (!req.params.lobbyId) {
+        return res.status(400).send('Lobby ID is required');
+    }
+
+    queuedMessagesByLobbyId[req.params.lobbyId] = queuedMessagesByLobbyId[req.params.lobbyId] || [];
+    queuedMessagesByLobbyId[req.params.lobbyId].push(req.body);
     console.log('Queued message:', req.body);
 
     res.send('Message queued successfully');
 });
 
-app.get('/queued-messages', (req, res) => {
-    res.json(queuedMessages);
-    queuedMessages = [];
+app.get('/:lobbyId/queued-messages', (req, res) => {
+    if (!req.params.lobbyId) {
+        return res.status(400).send('Lobby ID is required');
+    }
+
+    res.json(queuedMessagesByLobbyId[req.params.lobbyId] || []);
+    queuedMessagesByLobbyId[req.params.lobbyId] = [];
 });
 
 console.log("Silly Tavern MP loaded");
