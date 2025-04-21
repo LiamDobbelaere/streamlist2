@@ -122,8 +122,13 @@ article.image-hero img.willy-wonky--spotify {
 }
 
 article.image-hero img.willy-wonky--level-design {
-  transform: scale(1.1) rotate(-5deg) translateX(0px) translateY(70px);
+  transform: scale(1.1) rotate(-5deg) translateX(0px);
 }
+
+article.image-hero img.willy-wonky--level-design-other-direction {
+  transform: scale(1.1) rotate(2deg) translateX(20px) translateY(10px);
+}
+
 
 .full-page-video {
   position: fixed;
