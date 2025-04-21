@@ -9,7 +9,13 @@ app.set('trust proxy', true);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/", express.static(path.join(__dirname, "public")));
+app.get('/:lobbyId/join', (req, res) => {
+    if (!req.params.lobbyId) {
+        return res.status(400).send('Lobby ID is required');
+    }
+
+    res.redirect('/?lobbyId=' + req.params.lobbyId);
+});
 
 // disable Access-Control-Allow-Origin
 app.use((req, res, next) => {
@@ -18,14 +24,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// redirect /:lobbyId to / with ?lobbyId query parameter
-app.get('/:lobbyId', (req, res) => {
-    if (!req.params.lobbyId) {
-        return res.status(400).send('Lobby ID is required');
-    }
-
-    res.redirect('/?lobbyId=' + req.params.lobbyId);
-});
 
 app.post('/:lobbyId/set-chat', (req, res) => {
     if (!req.params.lobbyId) {
@@ -65,6 +63,8 @@ app.get('/:lobbyId/queued-messages', (req, res) => {
     res.json(queuedMessagesByLobbyId[req.params.lobbyId] || []);
     queuedMessagesByLobbyId[req.params.lobbyId] = [];
 });
+
+app.use("/", express.static(path.join(__dirname, "public")));
 
 console.log("Silly Tavern MP loaded");
 
