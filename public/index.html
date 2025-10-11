@@ -22,14 +22,14 @@
             </div>
           </a>
         </li>
-        <li><a href="#games" data-palette="0">Games</a></li>
+        <li><a href="#games" data-palette="0"><span class="link-text">Games</span></a></li>
         <li>
-          <a href="#music" data-palette="1" data-surname="Swift">Music</a>
+          <a href="#music" data-palette="1" data-surname="Swift"><span class="link-text">Music</span></a>
         </li>
-        <li><a href="#level-design" data-palette="2">Level Design</a></li>
-        <li><a href="#3d-modeling" data-palette="3">3D Modeling</a></li>
-        <li><a href="/streamlist">Streamlist</a></li>
-        <li><a href="/oth">Login</a></li>
+        <li><a href="#level-design" data-palette="2"><span class="link-text">Level Design</span></a></li>
+        <li><a href="#3d-modeling" data-palette="3"><span class="link-text">3D Modeling</span></a></li>
+        <li><a href="/streamlist"><span class="link-text">Streamlist</span></a></li>
+        <li><a href="/oth"><span class="link-text">Login</span></a></li>
       </ul>
     </nav>
 
@@ -182,53 +182,55 @@
     </div>
 
     <div data-visible-when="2" class="page-content-wrapper">
+      <img class="full-page-image" src="media/ld-bghero2.png" />
+
       <section class="two-column">
         <article>
           <p>
-            In january 2023, I joined
-            <a
-              href="https://www.gameart.cgmasteracademy.com/courses/level-design-for-games"
-              target="_blank"
-              >CGMA Level Design for Games</a
-            >
+            In july 2025, I joined CGMA Level Design for Games by Shane Canning
             to learn more about level design. I had always been interested in
             the different environments in games, particularly the layouts and
             spaces that the player interacts with.
           </p>
           <p>
-            While I did finish my CGMA course, I unfortunately never got
-            certified as I didn't finish all the homework. So, this chapter is
-            still in construction as I'm working on learning and gaining
-            experience. Perhaps one day I'll return to CGMA to redo the course
-            and get my certificate.
+            The ten weeks were insightful, taking me between 10-20 hours each
+            weekend to finish the assignments. Getting personalized feedback from Shane Canning,
+            a professional level designer, was invaluable. 
+            I'm grateful to him and CGMA for the experience this gave me.
           </p>
           <p>
-            I have a
-            <a href="https://liamdobbelaere.github.io/" target="_blank"
-              >small GitHub blog</a
-            >
-            where I wrote a bit about level design.
+            If you'd like to play the levels I made for this course, <a href="https://drive.google.com/file/d/1h4shsQN0VAFXzzBAqcspjfsaKUp4EtJX/view?usp=sharing" target="_blank"
+              >you can download it from Google Drive</a>.
           </p>
         </article>
         <article class="image-hero">
-          <a href="./media/level-design-preview.png" target="_blank">
-            <img
+            <video
               class="willy-wonky--level-design"
-              src="./media/level-design-preview.png"
+              autoplay
+              loop
+              muted
               alt="level design preview"
-          /></a>
-          <a href="./media/level-design-preview-2.png" target="_blank">
-            <img
+          >
+              <source src="media/webm/ld-4.webm" type="video/webm" />
+        </video>
+            <video
               class="willy-wonky--level-design-other-direction"
-              src="./media/level-design-preview-2.png"
+              autoplay
+              loop
+              muted
               alt="level design preview"
-          /></a>
-          <a href="./media/level-design-preview-3.png" target="_blank">
-            <img
+          >
+              <source src="media/webm/ld-2.webm" type="video/webm" />
+        </video>
+            <video
               class="willy-wonky--level-design"
-              src="./media/level-design-preview-3.png"
+              autoplay
+              loop
+              muted
               alt="level design preview"
-          /></a>
+          >
+              <source src="media/webm/ld-1.webm" type="video/webm" />
+        </video>
         </article>
       </section>
     </div>
@@ -254,7 +256,7 @@
         },
         2: {
           "--foreground": "#edf2f4",
-          "--background": "#2b2d42",
+          "--background": "#000",
           "--nav-background": "#ffcc00",
           "--nav-button-foreground": "#000",
           "--nav-button-background": "#ffcc00",
@@ -311,6 +313,11 @@
 
           document.querySelector(".surname").innerText =
             surname || "Dobbelaere";
+
+          document.querySelectorAll("[data-palette]").forEach((link) => {
+            link.classList.remove("selected");
+          });
+          el.classList.add("selected");
 
           applyPalette(paletteId);
         });

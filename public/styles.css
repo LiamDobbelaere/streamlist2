@@ -48,8 +48,11 @@ nav ul {
   list-style-type: none;
 }
 
+nav ul li:first-child {
+  margin-right: 48px;
+}
+
 nav ul li {
-  margin: 0 16px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -58,12 +61,12 @@ nav ul li {
 nav ul li a:has(.text-logo), nav ul li a:hover:has(.text-logo) {
   align-items: center;
   background: none;
+  top: 24px;
 }
 
 nav ul li a {
   position: relative;
-  top: calc(50% - 8px);
-  height: 32px;
+  height: 67px;
   display: flex;
   align-items: flex-end;
   font-weight: 500;
@@ -74,7 +77,7 @@ nav ul li a {
   background-color: var(--nav-button-background);
 }
 
-nav ul li a:hover {
+nav ul li a:hover, nav ul li a.selected {
   background-color: var(--nav-button-hover-background);
 }
 
@@ -108,29 +111,29 @@ article.image-hero {
   align-items: center;
 }
 
-article.image-hero img {
+article.image-hero img, article.image-hero video {
   width: 300px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
 }
 
-article.image-hero img.willy-wonky {
+article.image-hero .willy-wonky {
   transform: scale(1.05) rotate(-5deg) translateX(0px) translateY(60px);
 }
 
-article.image-hero img.willy-wonky--spotify {
+article.image-hero .willy-wonky--spotify {
   transform: scale(1.05) rotate(-5deg) translateX(0px) translateY(60px);
 }
 
-article.image-hero img.willy-wonky--level-design {
+article.image-hero .willy-wonky--level-design {
   transform: scale(1.1) rotate(-5deg) translateX(0px);
 }
 
-article.image-hero img.willy-wonky--level-design-other-direction {
+article.image-hero .willy-wonky--level-design-other-direction {
   transform: scale(1.1) rotate(2deg) translateX(20px) translateY(10px);
 }
 
 
-.full-page-video {
+.full-page-video, .full-page-image {
   position: fixed;
   right: 0;
   bottom: 0;
@@ -139,6 +142,8 @@ article.image-hero img.willy-wonky--level-design-other-direction {
   z-index: -999;
   opacity: 0.1;
 }
+
+
 
 .smaller {
   font-size: 14px;
