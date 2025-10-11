@@ -22,18 +22,18 @@
             </div>
           </a>
         </li>
-        <li><a href="#games" data-palette="0"><span class="link-text">Games</span></a></li>
+        <li><a href="#games" data-palette="games"><span class="link-text">Games</span></a></li>
         <li>
-          <a href="#music" data-palette="1" data-surname="Swift"><span class="link-text">Music</span></a>
+          <a href="#music" data-palette="music" data-surname="Swift"><span class="link-text">Music</span></a>
         </li>
-        <li><a href="#level-design" data-palette="2"><span class="link-text">Level Design</span></a></li>
-        <li><a href="#3d-modeling" data-palette="3"><span class="link-text">3D Modeling</span></a></li>
+        <li><a href="#level-design" data-palette="level-design"><span class="link-text">Level Design</span></a></li>
+        <li><a href="#3d-modeling" data-palette="modeling"><span class="link-text">3D Modeling</span></a></li>
         <li><a href="/streamlist"><span class="link-text">Streamlist</span></a></li>
         <li><a href="/oth"><span class="link-text">Login</span></a></li>
       </ul>
     </nav>
 
-    <div data-visible-when="0" class="page-content-wrapper">
+    <div data-visible-when="games" class="page-content-wrapper">
       <section class="two-column">
         <article>
           <p>
@@ -73,7 +73,7 @@
       </section>
     </div>
 
-    <div data-visible-when="1" class="page-content-wrapper">
+    <div data-visible-when="music" class="page-content-wrapper">
       <video class="full-page-video" autoplay muted loop>
         <source src="media/liam-music.mp4" type="video/mp4" />
       </video>
@@ -114,7 +114,7 @@
       </section>
     </div>
 
-    <div data-visible-when="3" class="page-content-wrapper">
+    <div data-visible-when="modeling" class="page-content-wrapper">
 
       <section class="two-column">
         <article>
@@ -181,7 +181,7 @@
       </section>
     </div>
 
-    <div data-visible-when="2" class="page-content-wrapper">
+    <div data-visible-when="level-design" class="page-content-wrapper">
       <img class="full-page-image" src="media/ld-bghero2.png" />
 
       <section class="two-column">
@@ -237,57 +237,10 @@
 
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <script>
-      const colorPalettesById = {
-        0: {
-          "--foreground": "#edf2f4",
-          "--background": "#f8f8f2",
-          "--foreground-on-background": "#000",
-          "--nav-background": "#ff2449",
-          "--nav-button-background": "#ff2449",
-          "--nav-button-hover-background": "#cc1836",
-        },
-        1: {
-          "--foreground": "#edf2f4",
-          "--background": "#000",
-          "--nav-background": "#1ed760",
-          "--nav-button-foreground": "#000",
-          "--nav-button-background": "#1ed760",
-          "--nav-button-hover-background": "#0f9e4f",
-        },
-        2: {
-          "--foreground": "#edf2f4",
-          "--background": "#000",
-          "--nav-background": "#ffcc00",
-          "--nav-button-foreground": "#000",
-          "--nav-button-background": "#ffcc00",
-          "--nav-button-hover-background": "#ccaa00",
-        },
-        3: {
-          "--foreground": "#edf2f4",
-          "--background": "#2b2d42",
-          "--nav-background": "#00aaff",
-          "--nav-button-foreground": "#000",
-          "--nav-button-background": "#00aaff",
-          "--nav-button-hover-background": "#0088cc",
-        },
-      };
-
       const applyPalette = (paletteId) => {
-        const palette = colorPalettesById[paletteId];
-
-        if (!palette["--foreground-on-background"]) {
-          palette["--foreground-on-background"] = palette["--foreground"];
-        }
-
-        if (!palette["--nav-button-foreground"]) {
-          palette["--nav-button-foreground"] = palette["--foreground"];
-        }
+        document.body.className = `palette-${paletteId}`;
 
         showDivForPalette(paletteId);
-
-        Object.entries(palette).forEach(([key, value]) => {
-          document.documentElement.style.setProperty(key, value);
-        });
       };
       const hideAllDivs = () => {
         document
@@ -304,7 +257,7 @@
         }
       };
 
-      applyPalette(0);
+      applyPalette("games");
 
       document.querySelectorAll("[data-palette]").forEach((el) => {
         el.addEventListener("click", () => {
