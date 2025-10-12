@@ -194,3 +194,23 @@ article.image-hero .willy-wonky--level-design-other-direction {
   --nav-button-background: #00aaff;
   --nav-button-hover-background: #0088cc;
 }
+
+.no-ai {
+  position: fixed;
+  right: 120px;
+  bottom: 120px;
+}
+
+.no-ai-icon {
+  width: 96px;
+  height: 96px;
+  position: absolute;
+}
+
+.no-ai-icon--back {
+  color: var(--nav-button-background);
+}
+
+.no-ai-icon--front {
+  color: var(--nav-button-foreground);
+}
