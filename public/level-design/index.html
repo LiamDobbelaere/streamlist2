@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liam Neels — Level Design</title>
+  <meta name="description" content="Portfolio of Liam Neels, level designer working in Unity and Unreal Engine." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Archivo+Black&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===== Header / Nav ===== -->
+  <header class="site-header">
+    <a class="brand" href="#top">Liam Neels</a>
+    <nav class="nav">
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="#work">Work</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+      <div class="hero-heading">
+        <p class="eyebrow">Portfolio</p>
+        <h1>Level<br />Design</h1>
+        <p class="hero-sub">
+          Crafting spaces players want to explore — pacing, flow and
+          environmental storytelling built in Unity &amp; Unreal Engine.
+        </p>
+        <a class="btn" href="#work">View selected work</a>
+      </div>
+
+      <figure class="hero-media">
+        <div class="video-card">
+          <video class="hero-video" poster="media/ldreel-poster.jpg" preload="metadata" playsinline>
+            <source src="media/ldreel.mp4" type="video/mp4" />
+            Your browser doesn't support embedded video.
+            <a href="media/ldreel.mp4">Download the showreel</a>.
+          </video>
+          <button class="video-overlay" type="button" aria-label="Play showreel">
+            <span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg></span>
+            <span class="video-label">Showreel 2026</span>
+          </button>
+        </div>
+        <figcaption class="reel-fallback">
+          Not playing? <a href="https://www.youtube.com/watch?v=n8hDLA7qUhw" target="_blank" rel="noopener">Watch on YouTube</a>
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- ===== About ===== -->
+    <section class="about" id="about">
+      <div class="about-text">
+        <h2>Spaces with intent</h2>
+        <p>
+          I design levels that guide players through tension and release —
+          blocking out layouts, tuning sightlines and combat encounters, then
+          polishing them into environments that feel deliberate from first
+          step to final set piece.
+        </p>
+        <p>
+          From greybox to ship, I work close to systems and art to keep flow,
+          readability and pacing intact across the whole experience.
+        </p>
+      </div>
+      <div class="about-stairs" data-iso="stairs" aria-hidden="true"></div>
+    </section>
+
+    <!-- ===== Tools ===== -->
+    <section class="tools" id="tools">
+      <h2 class="section-title">Tools of the trade</h2>
+      <ul class="tool-list">
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12.9288 4.2939 3.7997 2.1929c.1366.077.1415.2905 0 .3675l-4.515 2.6076a.4192.4192 0 0 1-.4246 0L7.274 6.8543c-.139-.0745-.1415-.293 0-.3675l3.7972-2.193V0L1.3758 5.5977V16.793l3.7177-2.1456v-4.3858c-.0025-.1565.1813-.2682.318-.1838l4.5148 2.6076a.4252.4252 0 0 1 .2136.3676v5.2127c.0025.1565-.1813.2682-.3179.1838l-3.7996-2.1929-3.7178 2.1457L12 24l9.6954-5.5977-3.7178-2.1457-3.7996 2.1929c-.1341.082-.3229-.0248-.3179-.1838V13.053c0-.1565.087-.2956.2136-.3676l4.5149-2.6076c.134-.082.3228.0224.3179.1838v4.3858l3.7177 2.1456V5.5977L12.9288 0Z"/></svg>
+          <span>Unity</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 0a12 12 0 1012 12A12 12 0 0012 0zm0 23.52A11.52 11.52 0 1123.52 12 11.52 11.52 0 0112 23.52zm7.13-9.791c-.206.997-1.126 3.557-4.06 4.942l-1.179-1.325-1.988 2a7.338 7.338 0 01-5.804-2.978 2.859 2.859 0 00.65.123c.326.006.678-.114.678-.66v-5.394a.89.89 0 00-1.116-.89c-.92.212-1.656 2.509-1.656 2.509a7.304 7.304 0 012.528-5.597 7.408 7.408 0 013.73-1.721c-1.006.573-1.57 1.507-1.57 2.29 0 1.262.76 1.109.984.923v7.28a1.157 1.157 0 00.148.256 1.075 1.075 0 00.88.445c.76 0 1.747-.868 1.747-.868V9.172c0-.6-.452-1.324-.905-1.572 0 0 .838-.149 1.484.346a5.537 5.537 0 01.387-.425c1.508-1.48 2.929-1.902 4.112-2.112 0 0-2.151 1.69-2.151 3.96 0 1.687.043 5.801.043 5.801.799.771 1.986-.342 3.059-1.441Z"/></svg>
+          <span>Unreal Engine</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-12 4 8 3-5 4 9z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          <span>Blockmesh / Greybox</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M9 9v12" stroke="currentColor" stroke-width="2"/></svg>
+          <span>Encounter Design</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===== Ledges divider ===== -->
+    <div class="iso-divider" data-iso="ledges" aria-hidden="true"></div>
+
+    <!-- ===== Work ===== -->
+    <section class="work" id="work">
+      <h2 class="section-title">Selected work</h2>
+      <div class="project-grid">
+        <!-- Project cards are injected by script.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer / Contact ===== -->
+  <footer class="site-footer" id="contact">
+    <div class="footer-inner">
+      <h2>Let's build a level<br />worth replaying.</h2>
+      <a class="btn btn-light" href="mailto:hello@liamneels.dev">hello@liamneels.dev</a>
+    </div>
+    <div class="footer-meta">
+      <span>Liam Neels — Level Design</span>
+      <span>&copy; 2026</span>
+    </div>
+  </footer>
+
+  <!-- ===== Climb-to-top ladder ===== -->
+  <button class="scroll-top" data-iso="ladder" aria-label="Climb back to top" title="Back to top"></button>
+
+  <script src="script.js"></script>
+</body>
+</html>
