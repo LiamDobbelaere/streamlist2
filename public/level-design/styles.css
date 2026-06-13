@@ -133,10 +133,11 @@ img, svg { display: block; max-width: 100%; }
   color: var(--blue);
   margin-bottom: 1.5rem;
   text-transform: uppercase;
+  margin-left: -7px;
 }
 .hero-sub {
   font-size: clamp(1rem, 1.5vw, 1.2rem);
-  max-width: 38ch;
+  max-width: 46ch;
   margin-bottom: 2rem;
   color: #333;
 }
@@ -155,6 +156,13 @@ img, svg { display: block; max-width: 100%; }
   transition: box-shadow 0.2s ease;
 }
 .video-card:hover { box-shadow: 0 12px 30px rgba(29, 18, 255, 0.25); }
+
+/* one-time attention cue on page load — draws the eye to the showreel, then settles */
+.video-card { animation: reelGlow 1.7s ease-out 0.6s 3; }
+@keyframes reelGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(29, 18, 255, 0); }
+  35% { box-shadow: 0 0 0 5px rgba(29, 18, 255, 0.35), 0 14px 40px rgba(29, 18, 255, 0.5); }
+}
 .hero-video {
   width: 100%;
   height: 100%;
@@ -173,6 +181,7 @@ img, svg { display: block; max-width: 100%; }
 }
 .video-overlay[hidden] { display: none; }
 .play {
+  position: relative;
   width: 76px; height: 76px;
   border-radius: 50%;
   background: rgba(10, 10, 10, 0.45);
@@ -181,6 +190,20 @@ img, svg { display: block; max-width: 100%; }
   place-items: center;
   border: 2px solid rgba(255, 255, 255, 0.7);
   transition: transform 0.2s ease;
+}
+/* ripple radiating from the play button — part of the on-load attention cue */
+.play::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--blue);
+  opacity: 0;
+  animation: playRipple 1.7s ease-out 0.6s 3;
+}
+@keyframes playRipple {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(2); opacity: 0; }
 }
 .video-overlay:hover .play { transform: scale(1.08); }
 .play svg { width: 34px; height: 34px; fill: var(--blue); margin-left: 4px; }
@@ -232,16 +255,6 @@ img, svg { display: block; max-width: 100%; }
   align-items: center;
 }
 .about-stairs svg { width: 100%; max-width: 360px; height: auto; overflow: visible; }
-
-/* player token climbs the staircase route when it scrolls into view */
-.iso-player { offset-rotate: 0deg; offset-distance: 0%; }
-.about-stairs.climb .iso-player {
-  animation: climb 3.2s ease-out 0.2s forwards;
-}
-@keyframes climb {
-  from { offset-distance: 0%; }
-  to { offset-distance: 100%; }
-}
 
 /* floating-ledges divider between Tools and Work */
 .iso-divider {
@@ -427,5 +440,6 @@ img, svg { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
-  .about-stairs.climb .iso-player { animation: none; offset-distance: 100%; }
+  .video-card { animation: none; }
+  .play::after { animation: none; }
 }

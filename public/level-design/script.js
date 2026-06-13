@@ -112,7 +112,7 @@ function isoProject(x, y, z) {
 }
 
 // One axis-aligned box -> three visible polygons (back-to-front safe per box).
-function isoBox(b, palette = GRAY) {
+function isoBox(b, palette = GRAY, stroke = palette[3]) {
   const { x, y, z, w, d, h } = b;
   const P = (X, Y, Z) => isoProject(X, Y, Z);
   const pts = (arr) => arr.map((p) => p.map((n) => n.toFixed(1)).join(",")).join(" ");
@@ -120,13 +120,13 @@ function isoBox(b, palette = GRAY) {
   const front = [P(x, y + d, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x, y + d, z + h)];
   const side = [P(x + w, y, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x + w, y, z + h)];
   const poly = (p, fill) =>
-    `<polygon points="${pts(p)}" fill="${fill}" stroke="${palette[3]}" stroke-width="0.75" stroke-linejoin="round"/>`;
+    `<polygon points="${pts(p)}" fill="${fill}" stroke="${stroke}" stroke-width="0.75" stroke-linejoin="round"/>`;
   // side + front first, top last (top is highest, never occluded within a box)
   return poly(side, palette[2]) + poly(front, palette[1]) + poly(top, palette[0]);
 }
 
 // Render boxes into an <svg> string, sorted back-to-front (painter's algorithm).
-function isoScene(boxes, { extra = "", palette = GRAY, pad = 6 } = {}) {
+function isoScene(boxes, { extra = "", palette = GRAY, pad = 6, stroke } = {}) {
   // bounds across every corner so the viewBox fits exactly
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   boxes.forEach((b) => {
@@ -141,13 +141,27 @@ function isoScene(boxes, { extra = "", palette = GRAY, pad = 6 } = {}) {
   const vb = `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
   // draw furthest first: smaller (front-corner x+y) is further back
   const ordered = [...boxes].sort((a, b) => (a.x + a.y) - (b.x + b.y));
-  const body = ordered.map((b) => isoBox(b, b.palette || palette)).join("");
+  const body = ordered
+    .map((b) => {
+      const pal = b.palette || palette;
+      return isoBox(b, pal, stroke === undefined ? pal[3] : stroke);
+    })
+    .join("");
   return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">${body}${extra}</svg>`;
 }
 
-// A small blue cube centred on the world origin — the "player" token.
-function isoPlayerCube(s = 0.6) {
-  return isoBox({ x: -s / 2, y: -s / 2, z: 0, w: s, d: s, h: s }, BLUE);
+// The staircase's right side as ONE polygon. The per-step side faces are coplanar
+// (all at x = width), so drawing them separately leaves hairline seams between
+// sections. Merging them into a single shape means there are no shared edges to seam.
+function buildStairWall(steps, width, fill = GRAY[2]) {
+  // walk the silhouette in (y, z): base, back edge, then the stepped top down to front
+  const corners = [[steps, 0], [0, 0], [0, steps]];
+  for (let k = 1; k < steps; k++) corners.push([k, steps - k + 1], [k, steps - k]);
+  corners.push([steps, 1]);
+  const points = corners
+    .map(([y, z]) => isoProject(width, y, z).map((n) => n.toFixed(1)).join(","))
+    .join(" ");
+  return `<polygon points="${points}" fill="${fill}" stroke="${fill}" stroke-width="1" stroke-linejoin="round"/>`;
 }
 
 // A staircase climbing up-and-back: each higher step sits one unit deeper.
@@ -156,25 +170,9 @@ function buildStairs(steps = 5, width = 3.4) {
   for (let i = 0; i < steps; i++) {
     boxes.push({ x: 0, y: steps - 1 - i, z: 0, w: width, d: 1, h: i + 1 });
   }
-  // the intended route up the centre of each tread — a golden-path nod
-  const route = [];
-  for (let i = 0; i < steps; i++) {
-    const y = steps - 1 - i;
-    route.push(isoProject(width / 2, y + 0.5, i)); // tread front
-    route.push(isoProject(width / 2, y + 0.5, i + 1)); // tread back
-  }
-  const d = route.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
-  const goal = route[route.length - 1];
-  const routeEl =
-    `<path d="${d}" fill="none" stroke="var(--blue)" stroke-width="2" ` +
-    `stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 6" opacity="0.5"/>`;
-  const goalEl =
-    `<circle cx="${goal[0].toFixed(1)}" cy="${(goal[1] - 6).toFixed(1)}" r="5" ` +
-    `fill="none" stroke="var(--blue)" stroke-width="2.5"/>`;
-  // the player rides this path via CSS offset-path (animated on scroll-in)
-  const playerEl =
-    `<g class="iso-player" style="offset-path:path('${d}')">${isoPlayerCube()}</g>`;
-  return isoScene(boxes, { extra: routeEl + goalEl + playerEl });
+  // gray treads + risers (borderless), then the darker-gray side painted over the
+  // boxes' side faces as a single seamless wall
+  return isoScene(boxes, { stroke: "none", extra: buildStairWall(steps, width) });
 }
 
 // A row of floating ledges/platforms — traversal affordance used as a divider.
@@ -217,17 +215,6 @@ function buildLadder() {
 // ----- mount the motifs -----
 document.querySelectorAll('[data-iso="stairs"]').forEach((el) => {
   el.innerHTML = buildStairs();
-  if ("IntersectionObserver" in window) {
-    const o = new IntersectionObserver(
-      (entries) => entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add("climb"); o.unobserve(e.target); }
-      }),
-      { threshold: 0.4 }
-    );
-    o.observe(el);
-  } else {
-    el.classList.add("climb");
-  }
 });
 
 document.querySelectorAll('[data-iso="ledges"]').forEach((el) => {
