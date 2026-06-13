@@ -236,7 +236,7 @@ img, svg { display: block; max-width: 100%; }
   grid-template-columns: 1.1fr 0.9fr;
   gap: clamp(2rem, 5vw, 4rem);
   align-items: start;
-  padding: clamp(2rem, 6vw, 4rem) var(--pad);
+  padding: clamp(2rem, 5vw, 3rem) var(--pad);
   max-width: var(--maxw);
   margin: 0 auto;
 }
@@ -254,7 +254,7 @@ img, svg { display: block; max-width: 100%; }
   justify-content: center;
   align-items: center;
 }
-.about-stairs svg { width: 100%; max-width: 360px; height: auto; overflow: visible; }
+.about-stairs svg { width: 100%; max-width: 240px; height: auto; overflow: visible; }
 
 /* floating-ledges divider between Tools and Work */
 .iso-divider {
@@ -302,7 +302,7 @@ img, svg { display: block; max-width: 100%; }
 
 /* ===== Tools ===== */
 .tools {
-  padding: clamp(2rem, 6vw, 4rem) var(--pad);
+  padding: clamp(2rem, 5vw, 3rem) var(--pad);
   max-width: var(--maxw);
   margin: 0 auto;
 }
@@ -328,7 +328,7 @@ img, svg { display: block; max-width: 100%; }
 
 /* ===== Work grid ===== */
 .work {
-  padding: clamp(2rem, 6vw, 4rem) var(--pad) clamp(4rem, 8vw, 6rem);
+  padding: clamp(2rem, 5vw, 3rem) var(--pad) clamp(4rem, 8vw, 6rem);
   max-width: var(--maxw);
   margin: 0 auto;
 }
