@@ -384,7 +384,8 @@ img, svg { display: block; max-width: 100%; }
   margin-bottom: 0.6rem;
   font-weight: 600;
 }
-.project-info p { color: #333; font-size: 0.95rem; max-width: 46ch; }
+.project-info p { color: #333; font-size: 0.95rem; max-width: 46ch; margin-bottom: 0.85rem; }
+.project-info p:last-child { margin-bottom: 0; }
 
 /* ===== Footer ===== */
 .site-footer {

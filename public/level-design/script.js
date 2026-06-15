@@ -1,34 +1,33 @@
 // ===== Project data =====
-// NOTE: the `desc` lines below are placeholder captions in a neutral voice —
-// rewrite them in your own words with the specific decisions you made.
+// `desc` holds one or more <p> paragraphs and is inserted as-is (not wrapped).
 const projects = [
   {
     img: "media/openworld.webp",
-    alt: "Open-world lunar base level document with colour-coded districts and a 2D map",
+    alt: "Open-world lunar base level document with color-coded districts and a 2D map",
     title: "Open-world districts with identity",
     tags: "Open-world planning · Districts · Spatial identity",
-    desc: "When I made this lunar base during the open-world exercise as part of the course, I planned each district beforehand.</br/></br>Each district gets their own identity: the housing section is purple-colored and has rounded cuboids, the greenhouse uses half-domes, the oxygen district is heavy on cylinders and blue accent colors, and so on. By using shape and color to create distinct zones, the player can more easily mentally categorize them.</br></br>A large crater in the middle provides occlusion, so not all districts are visible all at once.",
+    desc: "<p>When I made this lunar base for a CGMA open-world exercise, I planned each district beforehand.</p><p>Each district gets its own identity: the housing section is purple and has rounded cuboids, the greenhouse uses half-domes, the oxygen district is heavy on cylinders and blue accent colors, and so on. By using shape and color to create distinct zones, the player can more easily mentally categorize them.</p><p>A large crater in the middle provides occlusion, so not all districts are visible all at once.</p>",
   },
   {
     img: "media/leading-lines.webp",
     alt: "Leading lines drawn over a level, guiding the player's eye toward the objective",
     title: "Leading your eye with composition",
     tags: "Composition · Guiding the player · Readability",
-    desc: "For an FPS level where you could either do it stealthily or go loud, I used the truck and boxes to lead the player's gaze towards the two options. There is a broken chunk out of the wall that lets you enter stealthily, or a front-gate you can waltz right through.</br></br>Aside from leading lines, I make heavy use of the rule-of-thirds grid in critical POV sections such as doorways.",
+    desc: "<p>For an FPS level where you can play it stealthily or go loud, I used the truck and boxes to lead the player's gaze toward the two options. There is a broken chunk out of the wall that lets you enter stealthily, or a front-gate you can waltz right through.</p><p>Aside from leading lines, I make heavy use of the rule-of-thirds grid in critical POV sections such as doorways.</p>",
   },
   {
     img: "media/egypt-values.webp",
-    alt: "Egyptian tomb in colour and grayscale, showing the blue climbable ledges",
+    alt: "Egyptian tomb in color and grayscale, showing the blue climbable ledges",
     title: "Affordances that visually belong",
-    tags: "Colour · Shape · Readability",
-    desc: "In my Egyptian tomb level for the CGMA course, it's referentially accurate to use blue together with the sandy colors.</br></br> I made sure the value of the blue was deep enough compared to the sandstone in order to make it pop. By reusing these colors and shapes throughout the level, the player can immediately identify climbable ledges and where to go.",
+    tags: "Color · Shape · Readability",
+    desc: "<p>In my Egyptian tomb level for the CGMA course, I used blue alongside the sandy tones, which is true to real Egyptian palettes.</p><p> I made sure the value of the blue was deep enough relative to the sandstone, so that it still reads in grayscale. By reusing these colors and shapes throughout the level, the player can immediately identify climbable ledges and where to go.</p>",
   },
   {
     img: "media/references.webp",
     alt: "Real-world reference photos paired with the in-engine result",
     title: "Grounded in the real world",
     tags: "Reference · Worldbuilding",
-    desc: "When looking for references, I try to find spaces and shapes that excite me. Even fantasy environments are always based on something from the real world.</br></br>For the lunar base's oxygen district, I looked up how oxygen could be stored and got inspired by the cylindrical shapes. I then translated that into the level.</br></br>Likewise, for the candy-themed platformer level, I looked at existing games, real-world treats and other renditions of candy lands in media.</br></br> Using references also helps with the proper scaling of everything and makes the difference between abstract and grounded level design.",
+    desc: "<p>When looking for references, I try to find spaces and shapes that excite me. Even fantasy environments are always based on something from the real world.</p><p>For the lunar base's oxygen district, I looked up how oxygen could be stored and drew from the cylindrical shapes. I then translated that into the level.</p><p>Likewise, for the candy-themed platformer level, I looked at existing games, real-world treats and other renditions of candy lands in media.</p><p> Using references also helps with getting the scale right and makes the difference between abstract and grounded level design.</p>",
   },
 ];
 
@@ -45,7 +44,7 @@ if (grid) {
       <div class="project-info">
         <h3>${p.title}</h3>
         <p class="tags">${p.tags}</p>
-        <p>${p.desc}</p>
+        ${p.desc}
       </div>`;
     grid.appendChild(card);
   });
