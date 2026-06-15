@@ -50,6 +50,23 @@ if (grid) {
   });
 }
 
+// ===== Screenshots gallery =====
+// add/remove filenames here (files live in media/screenshots/ as .webp)
+const screenshots = ["a", "b", "c", "d", "e", "f"];
+const shotGrid = document.querySelector(".shot-grid");
+if (shotGrid) {
+  screenshots.forEach((name, i) => {
+    const src = `media/screenshots/${name}.webp`;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "shot reveal";
+    btn.dataset.zoom = src;
+    btn.setAttribute("aria-label", `Enlarge screenshot ${i + 1}`);
+    btn.innerHTML = `<img src="${src}" alt="Level screenshot ${i + 1}" loading="lazy" />`;
+    shotGrid.appendChild(btn);
+  });
+}
+
 // ===== Mobile nav toggle =====
 const nav = document.querySelector(".nav");
 const toggle = document.querySelector(".nav-toggle");
