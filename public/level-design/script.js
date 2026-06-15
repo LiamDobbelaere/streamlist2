@@ -1,24 +1,34 @@
-// ===== Project data (swap in real images/videos later) =====
+// ===== Project data =====
+// NOTE: the `desc` lines below are placeholder captions in a neutral voice —
+// rewrite them in your own words with the specific decisions you made.
 const projects = [
   {
-    title: "Tidebreaker — Harbor Assault",
-    tags: "Unreal Engine · Multiplayer · Combat",
-    desc: "A verticality-driven siege map balancing attacker push routes against defender chokepoints and flanks.",
+    img: "media/openworld.webp",
+    alt: "Open-world lunar base level document with colour-coded districts and a 2-D map",
+    title: "The Crescent Waystone — open-world layout",
+    tags: "Open-world · Macro layout · Wayfinding",
+    desc: "An open-world lunar base planned district by district. Each zone gets its own palette and landmark, so players always know where they are.",
   },
   {
-    title: "Ashfall Station",
-    tags: "Unity · Single-player · Stealth",
-    desc: "A derelict refinery built around light, sound and patrol loops to teach stealth without a tutorial.",
+    img: "media/leading-lines.webp",
+    alt: "Leading lines drawn over a level, guiding the player's eye toward the objective",
+    title: "Leading the eye",
+    tags: "Composition · Player guidance",
+    desc: "I use the natural lines of a space — rock edges, the path, prop placement — to pull the player's eye toward the next objective, no marker required.",
   },
   {
-    title: "The Long Climb",
-    tags: "Unreal Engine · Platformer",
-    desc: "A vertical traversal gym escalating mechanics one beat at a time, ending on a no-fail set piece.",
+    img: "media/egypt-values.webp",
+    alt: "Egyptian tomb in colour and grayscale, showing the blue climbable ledges",
+    title: "Affordances that read in value",
+    tags: "Colour · Value · Readability",
+    desc: "The climbable ledges use a cool blue that pops against the warm Egyptian palette — and still reads as a clear darker band in grayscale, so the affordance holds on value alone.",
   },
   {
-    title: "Greybox Lab — Arena 04",
-    tags: "Unity · Blockmesh · Encounter",
-    desc: "Rapid-iteration combat arena tuned for cover variety, sightline control and readable spawn waves.",
+    img: "media/references.webp",
+    alt: "Real-world reference photos paired with the in-engine result",
+    title: "Grounded in reference",
+    tags: "Reference · Worldbuilding",
+    desc: "I start from real places that excite me — liquid-oxygen storage became the base's oxygen district — and translate them into the level.",
   },
 ];
 
@@ -29,7 +39,9 @@ if (grid) {
     const card = document.createElement("article");
     card.className = "project reveal";
     card.innerHTML = `
-      <div class="project-media" role="img" aria-label="${p.title} preview"></div>
+      <button class="project-media" type="button" data-zoom="${p.img}" aria-label="Enlarge: ${p.title}">
+        <img src="${p.img}" alt="${p.alt}" loading="lazy" />
+      </button>
       <div class="project-info">
         <h3>${p.title}</h3>
         <p class="tags">${p.tags}</p>
@@ -72,6 +84,32 @@ if (heroVideo && videoOverlay) {
     videoOverlay.hidden = false;
   });
 }
+
+// ===== Image lightbox: click a project image to view it full size =====
+const lightbox = document.querySelector("[data-lightbox]");
+const lightboxImg = document.querySelector("[data-lightbox-img]");
+function openLightbox(src, alt) {
+  if (!lightbox) return;
+  lightboxImg.src = src;
+  lightboxImg.alt = alt || "";
+  lightbox.hidden = false;
+  document.body.style.overflow = "hidden"; // freeze the page behind the overlay
+}
+function closeLightbox() {
+  if (!lightbox || lightbox.hidden) return;
+  lightbox.hidden = true;
+  lightboxImg.removeAttribute("src");
+  document.body.style.overflow = "";
+}
+document.addEventListener("click", (e) => {
+  const trigger = e.target.closest("[data-zoom]");
+  if (trigger) openLightbox(trigger.dataset.zoom, trigger.querySelector("img")?.alt);
+});
+// click anywhere on the overlay (backdrop, image or close button) dismisses it
+lightbox?.addEventListener("click", closeLightbox);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeLightbox();
+});
 
 // ===== Reveal on scroll =====
 const revealEls = document.querySelectorAll(".reveal, section, .footer-inner");

@@ -144,8 +144,7 @@ img, svg { display: block; max-width: 100%; }
 
 /* Video card / media frames */
 .hero-media { position: relative; }
-.video-card,
-.project-media {
+.video-card {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -156,6 +155,31 @@ img, svg { display: block; max-width: 100%; }
   transition: box-shadow 0.2s ease;
 }
 .video-card:hover { box-shadow: 0 12px 30px rgba(29, 18, 255, 0.25); }
+
+/* project image: the blue frame hugs the image itself (no fixed box → no letterbox
+   bars and no cropping). Height is capped so the rows stay reasonably even, and the
+   image is centred in its column. Click opens the full-size version. */
+.project-media {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.project-media img {
+  display: block;
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  border: 4px solid var(--blue);
+  border-radius: var(--radius);
+  background: var(--black);
+  transition: box-shadow 0.2s ease;
+}
+.project-media:hover img { box-shadow: 0 12px 30px rgba(29, 18, 255, 0.25); }
 
 /* one-time attention cue on page load — draws the eye to the showreel, then settles */
 .video-card { animation: reelGlow 1.7s ease-out 0.6s 3; }
@@ -342,7 +366,7 @@ img, svg { display: block; max-width: 100%; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(1.5rem, 4vw, 3rem);
-  align-items: center;
+  align-items: start;
 }
 /* alternate rows flip the image to the other side */
 .project:nth-child(even) .project-media { order: 2; }
@@ -392,6 +416,40 @@ img, svg { display: block; max-width: 100%; }
   opacity: 0.85;
   border-top: 1px solid rgba(255, 255, 255, 0.3);
   padding-top: 1.5rem;
+}
+
+/* ===== Image lightbox ===== */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(10, 10, 10, 0.92);
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  cursor: zoom-out;
+}
+.lightbox[hidden] { display: none; }
+.lightbox-img {
+  /* clamp against the viewport (minus the overlay's padding) so tall images can't
+     overflow — a percentage here would resolve against the content-sized grid track */
+  max-width: calc(100vw - clamp(2rem, 8vw, 6rem));
+  max-height: calc(100vh - clamp(2rem, 8vw, 6rem));
+  width: auto;
+  height: auto;
+  border: 4px solid var(--blue);
+  border-radius: var(--radius);
+}
+.lightbox-close {
+  position: fixed;
+  top: clamp(0.5rem, 2vw, 1.5rem);
+  right: clamp(0.75rem, 2vw, 2rem);
+  background: none;
+  border: 0;
+  color: var(--white);
+  font-size: 2.75rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 /* ===== Reveal on scroll ===== */
