@@ -4,31 +4,31 @@
 const projects = [
   {
     img: "media/openworld.webp",
-    alt: "Open-world lunar base level document with colour-coded districts and a 2-D map",
-    title: "The Crescent Waystone — open-world layout",
-    tags: "Open-world · Macro layout · Wayfinding",
-    desc: "An open-world lunar base planned district by district. Each zone gets its own palette and landmark, so players always know where they are.",
+    alt: "Open-world lunar base level document with colour-coded districts and a 2D map",
+    title: "Open-world districts with identity",
+    tags: "Open-world planning · Districts · Spatial identity",
+    desc: "When I made this lunar base during the open-world exercise as part of the course, I planned each district beforehand.</br/></br>Each district gets their own identity: the housing section is purple-colored and has rounded cuboids, the greenhouse uses half-domes, the oxygen district is heavy on cylinders and blue accent colors, and so on. By using shape and color to create distinct zones, the player can more easily mentally categorize them.</br></br>A large crater in the middle provides occlusion, so not all districts are visible all at once.",
   },
   {
     img: "media/leading-lines.webp",
     alt: "Leading lines drawn over a level, guiding the player's eye toward the objective",
-    title: "Leading the eye",
-    tags: "Composition · Player guidance",
-    desc: "I use the natural lines of a space — rock edges, the path, prop placement — to pull the player's eye toward the next objective, no marker required.",
+    title: "Leading your eye with composition",
+    tags: "Composition · Guiding the player · Readability",
+    desc: "For an FPS level where you could either do it stealthily or go loud, I used the truck and boxes to lead the player's gaze towards the two options. There is a broken chunk out of the wall that lets you enter stealthily, or a front-gate you can waltz right through.</br></br>Aside from leading lines, I make heavy use of the rule-of-thirds grid in critical POV sections such as doorways.",
   },
   {
     img: "media/egypt-values.webp",
     alt: "Egyptian tomb in colour and grayscale, showing the blue climbable ledges",
-    title: "Affordances that read in value",
-    tags: "Colour · Value · Readability",
-    desc: "The climbable ledges use a cool blue that pops against the warm Egyptian palette — and still reads as a clear darker band in grayscale, so the affordance holds on value alone.",
+    title: "Affordances that visually belong",
+    tags: "Colour · Shape · Readability",
+    desc: "In my Egyptian tomb level for the CGMA course, it's referentially accurate to use blue together with the sandy colors.</br></br> I made sure the value of the blue was deep enough compared to the sandstone in order to make it pop. By reusing these colors and shapes throughout the level, the player can immediately identify climbable ledges and where to go.",
   },
   {
     img: "media/references.webp",
     alt: "Real-world reference photos paired with the in-engine result",
-    title: "Grounded in reference",
+    title: "Grounded in the real world",
     tags: "Reference · Worldbuilding",
-    desc: "I start from real places that excite me — liquid-oxygen storage became the base's oxygen district — and translate them into the level.",
+    desc: "When looking for references, I try to find spaces and shapes that excite me. Even fantasy environments are always based on something from the real world.</br></br>For the lunar base's oxygen district, I looked up how oxygen could be stored and got inspired by the cylindrical shapes. I then translated that into the level.</br></br>Likewise, for the candy-themed platformer level, I looked at existing games, real-world treats and other renditions of candy lands in media.</br></br> Using references also helps with the proper scaling of everything and makes the difference between abstract and grounded level design.",
   },
 ];
 
