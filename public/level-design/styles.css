@@ -254,6 +254,10 @@ img, svg { display: block; max-width: 100%; }
   font-weight: 600;
   text-underline-offset: 2px;
 }
+.reel-more { margin-top: 0.3rem; }
+/* decorative arrow sits outside the <a> so it never picks up the underline,
+   and stays the same gray as the surrounding caption text */
+.reel-arrow { color: #666; }
 
 /* ===== About ===== */
 .about {
