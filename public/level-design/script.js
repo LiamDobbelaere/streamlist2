@@ -50,6 +50,49 @@ if (grid) {
   });
 }
 
+// ===== Level walkthroughs =====
+// Array order = display order. `note` is optional (rendered as a small sub-line).
+const levels = [
+  { file: "week1", title: "Asian City" },
+  { file: "week2", title: "Egyptian Tomb" },
+  { file: "week4", title: "Candy Platformer" },
+  { file: "week8", title: "Bedroom", note: "Dramatic scale" },
+  { file: "week9-10", title: "Arctic Base", note: "FPS" },
+  { file: "week3", title: "Jungle Temple Ruins" },
+  { file: "week5-6", title: "Lunar Base", note: "Open world" },
+  { file: "week7", title: "Spooky Golf Course" },
+];
+const levelGrid = document.querySelector(".level-grid");
+if (levelGrid) {
+  levels.forEach((lv) => {
+    const base = `media/levels/${lv.file}`;
+    const card = document.createElement("article");
+    card.className = "level reveal";
+    card.innerHTML = `
+      <button class="level-media" type="button" data-video-src="${base}.mp4" aria-label="Play ${lv.title} walkthrough">
+        <img src="${base}-poster.jpg" alt="${lv.title} walkthrough" loading="lazy" />
+        <span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg></span>
+      </button>
+      <h3>${lv.title}</h3>
+      ${lv.note ? `<p class="level-note">${lv.note}</p>` : ""}`;
+    levelGrid.appendChild(card);
+  });
+}
+
+// Swap the poster tile for a real player on click. Building the <video> only on
+// demand means none of these clips cost a byte until someone asks for one.
+document.addEventListener("click", (e) => {
+  const tile = e.target.closest("[data-video-src]");
+  if (!tile) return;
+  const video = document.createElement("video");
+  video.className = "level-video";
+  video.src = tile.dataset.videoSrc;
+  video.controls = true;
+  video.playsInline = true;
+  tile.replaceWith(video);
+  video.play().catch(() => {});
+});
+
 // ===== Screenshots gallery =====
 // add/remove filenames here (files live in media/screenshots/ as .webp)
 const screenshots = ["a", "b", "c", "d", "e", "f"];
