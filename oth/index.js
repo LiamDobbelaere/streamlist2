@@ -317,9 +317,18 @@ db.isReady().then(async () => {
     await rootUser.createPermission({
       name: "MODIFY_STREAMLIST",
     });
+    await rootUser.createPermission({
+      name: "VIEW_STREAMLIST",
+    });
 
     console.log("Root user and permissions seeded.");
   }
+
+  // Make sure permissions added after the initial seed exist, so they can be
+  // handed out through the manage-permissions UI.
+  await db.Permission.findOrCreate({
+    where: { name: "VIEW_STREAMLIST" },
+  });
 });
 
 module.exports = {

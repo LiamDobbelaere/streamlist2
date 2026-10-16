@@ -28,7 +28,7 @@
         </li>
         <li><a href="/level-design" data-palette="level-design"><span class="link-text">Level Design</span></a></li>
         <!-- <li><a href="#3d-modeling" data-palette="modeling"><span class="link-text">3D Modeling</span></a></li> -->
-        <li><a href="/streamlist"><span class="link-text">Streamlist</span></a></li>
+        <li id="streamlist-nav" style="display: none"><a href="/streamlist"><span class="link-text">Streamlist</span></a></li>
         <li><a href="/oth"><span class="link-text">Login</span></a></li>
       </ul>
     </nav>
@@ -349,6 +349,15 @@
           applyPalette(paletteId);
         });
       });
+
+      fetch("/oth/logged-in")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((user) => {
+          if (user && user.permissions.includes("VIEW_STREAMLIST")) {
+            document.getElementById("streamlist-nav").style.display = "";
+          }
+        })
+        .catch(() => {});
 
       const hash = window.location.hash;
       if (hash) {

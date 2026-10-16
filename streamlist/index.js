@@ -24,6 +24,59 @@ module.exports = function (http) {
     USERINFO_RECEIVED: "userinfo received",
   };
 
+  function parseCookies(header) {
+    const cookies = {};
+    if (!header) {
+      return cookies;
+    }
+
+    header.split(";").forEach((pair) => {
+      const index = pair.indexOf("=");
+      if (index === -1) {
+        return;
+      }
+
+      const key = pair.slice(0, index).trim();
+      const value = pair.slice(index + 1).trim();
+      try {
+        cookies[key] = decodeURIComponent(value);
+      } catch {
+        cookies[key] = value;
+      }
+    });
+
+    return cookies;
+  }
+
+  async function getPermissionsForSid(sid) {
+    if (+INTEROP_OTH_DISABLED === 1) {
+      return ["VIEW_STREAMLIST", "MODIFY_STREAMLIST"];
+    }
+
+    if (!sid) {
+      return [];
+    }
+
+    try {
+      const { permissions } = await oth.getPermissions(sid);
+      return permissions;
+    } catch {
+      return [];
+    }
+  }
+
+  // Anyone without VIEW_STREAMLIST gets bounced to the root domain.
+  app.use(async (req, res, next) => {
+    const { sid } = parseCookies(req.headers.cookie);
+    const permissions = await getPermissionsForSid(sid);
+
+    if (!permissions.includes("VIEW_STREAMLIST")) {
+      return res.redirect("/");
+    }
+
+    next();
+  });
+
   app.use("/", express.static(path.join(__dirname, "public")));
   app.get("/export", async (req, res) => {
     const streamItems = await db.StreamList.findAll();
@@ -69,6 +122,11 @@ module.exports = function (http) {
     const sid = socket.request.cookies.sid;
     await fetchPermissions();
 
+    if (!hasViewPermission()) {
+      socket.disconnect(true);
+      return;
+    }
+
     async function fetchPermissions() {
       if (+INTEROP_OTH_DISABLED === 1) {
         const perms = ["MODIFY_STREAMLIST"];
@@ -104,6 +162,14 @@ module.exports = function (http) {
       socket.emit(SocketEvent.USERINFO_RECEIVED, {
         permissions: socket.permissions,
       });
+    }
+
+    function hasViewPermission() {
+      if (+INTEROP_OTH_DISABLED === 1) {
+        return true;
+      }
+
+      return socket.permissions.includes("VIEW_STREAMLIST");
     }
 
     function hasModifyPermission() {
