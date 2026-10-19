@@ -18,7 +18,8 @@ html { scroll-behavior: smooth; }
 body {
   font-family: "Archivo", system-ui, sans-serif;
   color: var(--black);
-  background: var(--white);
+  background: url('media/background.png') no-repeat center center fixed;
+  background-color: white;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
