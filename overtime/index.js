@@ -260,7 +260,12 @@ module.exports = function (http) {
   });
 
   if (fs.existsSync(path.join(DIST, "index.html"))) {
-    app.use("/", express.static(DIST));
+    // index.html must never be cached: it names the hashed build files, and a stale copy points at files that are gone
+    app.use("/", express.static(DIST, {
+      setHeaders(res, filePath) {
+        if (filePath.endsWith("index.html")) res.setHeader("Cache-Control", "no-cache");
+      },
+    }));
   } else {
     console.log(`(overtime: no build found at ${DIST}; run "npm run deploy" in the game repo)`);
     app.get("/", (req, res) => res.status(503).send("OVERTIME is not built yet. Run `npm run deploy` in the game repository."));
