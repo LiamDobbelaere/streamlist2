@@ -9,11 +9,13 @@ const path = require("path");
 const oth = require("./oth");
 const streamlist = require("./streamlist")(http);
 const sillyTavernMP = require("./stmp");
+const overtime = require("./overtime")(http);
 
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/oth", oth.app);
 app.use("/streamlist", streamlist.app);
 app.use("/stmp", sillyTavernMP.app);
+app.use("/overtime", overtime.app);
 
 http.listen(PORT, () => {
   console.log(`listening on *:${PORT}`);
