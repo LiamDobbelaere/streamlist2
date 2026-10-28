@@ -60,6 +60,7 @@ module.exports = function (http) {
     if (o && typeof o === "object") {
       const shift = parseInt(o.shift, 10);
       if ([5, 10, 15].includes(shift)) opts.shift = shift;
+      if (["office", "arctic"].includes(o.map)) opts.map = o.map;
     }
     return opts;
   }
